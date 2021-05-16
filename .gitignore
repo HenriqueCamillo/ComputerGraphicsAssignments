@@ -1,0 +1,8 @@
+# VS Code
+.vscode
+
+# Executable
+main
+
+# Possible zip files
+*.zip
