@@ -7,6 +7,7 @@
 #include "Vector3.hpp"
 #include "Shapes.hpp"
 #include "Transform.hpp"
+#include "Input.hpp"
 
 #include <GL/glew.h>  
 #define GLFW_INCLUDE_NONE
@@ -178,15 +179,7 @@ int main() {
         glClearColor(color.r, color.g, color.b, color.a);
 
         // Translation input
-        movement = Vector3::zero;
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-            movement.y += 1.0f;
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-            movement.y -= 1.0f;
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-            movement.x += 1.0f;
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-            movement.x -= 1.0f;
+        movement = Vector3(Input::getAxis(window, "Horizontal"), Input::getAxis(window, "Vertical"), 0.0f);
         if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
             movement.z -= 1.0f;
         if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
