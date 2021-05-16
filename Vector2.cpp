@@ -33,26 +33,40 @@ Vector2 Vector2::normalized() {
     return normalizedVector;
 }
 
+Vector2 Vector2::moveTowards(Vector2 origin, Vector2 destination, float maxDistanceDelta) {
+    Vector2 direction = destination - origin;
+
+    if (direction.magnitude() < maxDistanceDelta) {
+        return destination;
+    }
+
+    return origin + direction.normalized() * maxDistanceDelta;
+}
+
+std::string Vector2::toString() {
+    return "(" + std::to_string(x) + ", " + std::to_string(y) + ")";
+}
+
 Vector2::operator Vector3() {
     return Vector3(x, y, 0.0f);
 }
 
-Vector2 Vector2::operator + (const Vector2& v){
+Vector2 Vector2::operator + (Vector2 v){
     return Vector2(x + v.x, y + v.y);
 }
 
-Vector2 Vector2::operator - (const Vector2& v){
+Vector2 Vector2::operator - (Vector2 v){
     return Vector2(x - v.x, y - v.y);
 }
 
-Vector2& Vector2::operator += (const Vector2& v){
+Vector2& Vector2::operator += (Vector2 v){
     x += v.x;
     y += v.y;
 
     return *this;
 }
 
-Vector2& Vector2::operator -= (const Vector2& v){
+Vector2& Vector2::operator -= (Vector2 v){
     x -= v.x;
     y -= v.y;
 
@@ -60,22 +74,22 @@ Vector2& Vector2::operator -= (const Vector2& v){
 }
 
 
-Vector2 Vector2::operator * (const float n){
+Vector2 Vector2::operator * ( float n){
     return Vector2(x * n, y * n);
 }
 
-Vector2 Vector2::operator / (const float n){
+Vector2 Vector2::operator / ( float n){
     return Vector2(x / n, y / n);
 }
 
-Vector2& Vector2::operator *= (const float n){
+Vector2& Vector2::operator *= ( float n){
     x += n;
     y += n;
 
     return *this;
 }
 
-Vector2& Vector2::operator /= (const float n){
+Vector2& Vector2::operator /= ( float n){
     x /= n;
     y /= n;
 

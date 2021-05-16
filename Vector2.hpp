@@ -1,5 +1,6 @@
 #pragma once
 #include "Vector3.hpp"
+#include <iostream>
 
 class Vector3;
 class Vector2 {
@@ -23,16 +24,18 @@ public:
 
     float magnitude();
     Vector2 normalized();
+    static Vector2 moveTowards(Vector2 origin, Vector2 destination, float maxDistanceDelta);
+    std::string toString();
 
     operator Vector3();
 
-    Vector2 operator + (const Vector2& v);
-    Vector2 operator - (const Vector2& v);
-    Vector2& operator += (const Vector2& v);
-    Vector2& operator -= (const Vector2& v);
+    Vector2 operator + (Vector2 v);
+    Vector2 operator - (Vector2 v);
+    Vector2& operator += (Vector2 v);
+    Vector2& operator -= (Vector2 v);
 
-    Vector2 operator * (const float n);
-    Vector2 operator / (const float n);
-    Vector2& operator *= (const float n);
-    Vector2& operator /= (const float n);
+    Vector2 operator * (float n);
+    Vector2 operator / (float n);
+    Vector2& operator *= (float n);
+    Vector2& operator /= (float n);
 };

@@ -36,19 +36,33 @@ Vector3 Vector3::normalized() {
     return normalizedVector;
 }
 
+Vector3 Vector3::moveTowards(Vector3 origin, Vector3 destination, float maxDistanceDelta) {
+    Vector3 direction = destination - origin;
+
+    if (direction.magnitude() < maxDistanceDelta) {
+        return destination;
+    }
+
+    return origin + direction.normalized() * maxDistanceDelta;
+}
+
+std::string Vector3::toString() {
+    return "(" + std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + ")";
+}
+
 Vector3::operator Vector2() {
     return Vector2(x, y);
 }
 
-Vector3 Vector3::operator + (const Vector3& v){
+Vector3 Vector3::operator + (Vector3 v){
     return Vector3(x + v.x, y + v.y, z + v.z);
 }
 
-Vector3 Vector3::operator - (const Vector3& v){
+Vector3 Vector3::operator - (Vector3 v){
     return Vector3(x - v.x, y - v.y, z - v.z);
 }
 
-Vector3& Vector3::operator += (const Vector3& v){
+Vector3& Vector3::operator += (Vector3 v){
     x += v.x;
     y += v.y;
     z += v.z;
@@ -56,7 +70,7 @@ Vector3& Vector3::operator += (const Vector3& v){
     return *this;
 }
 
-Vector3& Vector3::operator -= (const Vector3& v){
+Vector3& Vector3::operator -= (Vector3 v){
     x -= v.x;
     y -= v.y;
     z -= v.z;
@@ -65,15 +79,15 @@ Vector3& Vector3::operator -= (const Vector3& v){
 }
 
 
-Vector3 Vector3::operator * (const float n){
+Vector3 Vector3::operator * (float n){
     return Vector3(x * n, y * n, z * n);
 }
 
-Vector3 Vector3::operator / (const float n){
+Vector3 Vector3::operator / (float n){
     return Vector3(x / n, y / n, z / n);
 }
 
-Vector3& Vector3::operator *= (const float n){
+Vector3& Vector3::operator *= (float n){
     x += n;
     y += n;
     z += n;
@@ -81,7 +95,7 @@ Vector3& Vector3::operator *= (const float n){
     return *this;
 }
 
-Vector3& Vector3::operator /= (const float n){
+Vector3& Vector3::operator /= (float n){
     x /= n;
     y /= n;
     z /= n;

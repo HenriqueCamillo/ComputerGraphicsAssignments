@@ -162,6 +162,11 @@ int main() {
     // glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
     Transform transform;
+
+    Vector3 movement;
+    float moveSpeed = 0.01f;
+
+
     float cosTheta, senTheta;
 
     // Loop that will run while the screen is being displayed
@@ -173,18 +178,21 @@ int main() {
         glClearColor(color.r, color.g, color.b, color.a);
 
         // Translation input
+        movement = Vector3::zero;
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-            transform.position.y += 0.01;
+            movement.y += 1.0f;
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-            transform.position.y -= 0.01;
+            movement.y -= 1.0f;
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-            transform.position.x += 0.01;
+            movement.x += 1.0f;
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-            transform.position.x -= 0.01;
+            movement.x -= 1.0f;
         if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
-            transform.position.z -= 0.01;
+            movement.z -= 1.0f;
         if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
-            transform.position.z += 0.01;
+            movement.z += 1.0f;
+
+        transform.position = Vector3::moveTowards(transform.position, transform.position + movement, moveSpeed);
 
         // Rotation input
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
