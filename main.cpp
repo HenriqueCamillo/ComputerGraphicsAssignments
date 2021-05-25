@@ -8,6 +8,8 @@
 #include "Shapes.hpp"
 #include "Transform.hpp"
 #include "Input.hpp"
+#include "GameObject.hpp"
+#include "RenderingInstructions.hpp"
 
 #include <GL/glew.h>  
 #define GLFW_INCLUDE_NONE
@@ -136,7 +138,6 @@ int main() {
     // Vertices that wil be sent to GPU
     std::vector<Vector3> vertices = Shapes::createPyramid(0.4f, 0.2f);
      
-
     // Creating buffer with vertices
     GLuint buffer;
     glGenBuffers(1, &buffer);
@@ -162,7 +163,7 @@ int main() {
     // Enables polygon mode 
     // glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
-    Transform transform;
+    GameObject pyramid;
 
     Vector3 movement;
     float moveSpeed = 0.01f;
@@ -170,11 +171,23 @@ int main() {
 
     float cosTheta, senTheta;
 
+
+
+    // Base square
+    Color color = Color::yellow;
+    pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+
+    // Triangular faces
+    for (int i = 0; i < 4; i++) {
+        color = i % 2 == 0 ? Color::orange : Color::red;
+        pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, 3, color));
+    }
+
     // Loop that will run while the screen is being displayed
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
-        Color color = Color::lightGray;
+        color = Color::lightGray;
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(color.r, color.g, color.b, color.a);
 
@@ -185,40 +198,40 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
             movement.z += 1.0f;
 
-        transform.position = Vector3::moveTowards(transform.position, transform.position + movement, moveSpeed);
+        pyramid.transform.position = Vector3::moveTowards(pyramid.transform.position, pyramid.transform.position + movement, moveSpeed);
 
         // Rotation input
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            transform.rotation.x += 5;
+            pyramid.transform.rotation.x += 5;
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            transform.rotation.x -= 5;
+            pyramid.transform.rotation.x -= 5;
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            transform.rotation.y += 5;
+            pyramid.transform.rotation.y += 5;
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            transform.rotation.y -= 5;
+            pyramid.transform.rotation.y -= 5;
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-            transform.rotation.z -= 5;
+            pyramid.transform.rotation.z -= 5;
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-            transform.rotation.z += 5;
+            pyramid.transform.rotation.z += 5;
 
         // Scale input
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
-            transform.scale += Vector3(0.01f, 0.01f, 0.01f);
+            pyramid.transform.scale += Vector3(0.01f, 0.01f, 0.01f);
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-            transform.scale -= Vector3(0.01f, 0.01f, 0.01f);
+            pyramid.transform.scale -= Vector3(0.01f, 0.01f, 0.01f);
 
         // Translation matrix
         std::vector<float> translationMatrix = {
-            1.0f, 0.0f, 0.0f, transform.position.x,
-            0.0f, 1.0f, 0.0f, transform.position.y,
-            0.0f, 0.0f, 1.0f, transform.position.z,
+            1.0f, 0.0f, 0.0f, pyramid.transform.position.x,
+            0.0f, 1.0f, 0.0f, pyramid.transform.position.y,
+            0.0f, 0.0f, 1.0f, pyramid.transform.position.z,
             0.0f, 0.0f, 0.0f, 1.0f
         };
 
         // Rotation matrices
         // X
-        cosTheta = cos(transform.rotation.x * (M_PI / 180));
-        senTheta = sin(transform.rotation.x * (M_PI / 180));
+        cosTheta = cos(pyramid.transform.rotation.x * (M_PI / 180));
+        senTheta = sin(pyramid.transform.rotation.x * (M_PI / 180));
 
         std::vector<float> rotationXMatrix = {
             1.0f, 0.0f, 0.0f, 0.0f,
@@ -228,8 +241,8 @@ int main() {
         };
 
         // Y
-        cosTheta = cos(transform.rotation.y * (M_PI / 180));
-        senTheta = sin(transform.rotation.y * (M_PI / 180));
+        cosTheta = cos(pyramid.transform.rotation.y * (M_PI / 180));
+        senTheta = sin(pyramid.transform.rotation.y * (M_PI / 180));
 
         std::vector<float> rotationYMatrix = {
             cosTheta, 0.0f, senTheta, 0.0f,
@@ -239,8 +252,8 @@ int main() {
         };
 
         // Z
-        cosTheta = cos(transform.rotation.z * (M_PI / 180));
-        senTheta = sin(transform.rotation.z * (M_PI / 180));
+        cosTheta = cos(pyramid.transform.rotation.z * (M_PI / 180));
+        senTheta = sin(pyramid.transform.rotation.z * (M_PI / 180));
 
         std::vector<float> rotationZMatrix = {
             cosTheta, -senTheta, 0.0f, 0.0f,
@@ -251,9 +264,9 @@ int main() {
         
         // Scale matrix
         std::vector<float> scaleMatrix = {
-            transform.scale.x, 0.0f, 0.0f, 0.0f,
-            0.0f, transform.scale.y, 0.0f, 0.0f,
-            0.0f, 0.0f, transform.scale.z, 0.0f,
+            pyramid.transform.scale.x, 0.0f, 0.0f, 0.0f,
+            0.0f, pyramid.transform.scale.y, 0.0f, 0.0f,
+            0.0f, 0.0f, pyramid.transform.scale.z, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f
         };
 
@@ -268,18 +281,7 @@ int main() {
         locPosition = glGetUniformLocation(program, "transformationMatrix");
         glUniformMatrix4fv(locPosition, 1, GL_TRUE, transformationMatrix.data());
 
-        // Drawing cilinder
-        // Base square
-        color = Color::yellow;
-        glUniform4f(locColor, color.r, color.g, color.b, color.a);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        
-        // Triangular faces
-        for (int i = 0; i < 4; i++) {
-            color = i % 2 == 0 ? Color::orange : Color::red;
-            glUniform4f(locColor, color.r, color.g, color.b, color.a);
-            glDrawArrays(GL_TRIANGLES, 4 + i * 3, 3);
-        }
+        pyramid.renderer.draw(locColor);
 
         glfwSwapBuffers(window);
     }
