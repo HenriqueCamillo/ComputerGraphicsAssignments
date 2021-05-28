@@ -33,6 +33,7 @@ public:
     Vector2 operator - (Vector2 v);
     Vector2& operator += (Vector2 v);
     Vector2& operator -= (Vector2 v);
+    bool operator == (Vector2 v);
 
     Vector2 operator * (float n);
     Vector2 operator / (float n);

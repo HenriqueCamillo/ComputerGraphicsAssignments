@@ -78,6 +78,9 @@ Vector3& Vector3::operator -= (Vector3 v){
     return *this;
 }
 
+bool Vector3::operator ==(Vector3 v){
+    return (x == v.x && y == v.y && z == v.z);
+}
 
 Vector3 Vector3::operator * (float n){
     return Vector3(x * n, y * n, z * n);

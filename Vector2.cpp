@@ -73,6 +73,9 @@ Vector2& Vector2::operator -= (Vector2 v){
     return *this;
 }
 
+bool Vector2::operator ==(Vector2 v){
+    return (x == v.x && y == v.y);
+}
 
 Vector2 Vector2::operator * ( float n){
     return Vector2(x * n, y * n);

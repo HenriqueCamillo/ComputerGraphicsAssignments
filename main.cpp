@@ -39,25 +39,6 @@ char* fileToString(std::string fileName) {
     return string;
 }
 
-std::vector<float> matrixMultiplication(std::vector<float>& m1, int r1, int c1, std::vector<float>& m2, int r2, int c2) {
-
-    if (c1 != r2) {
-        std::cout << "Invalid matrix multiplication." << std::endl;
-        return {};
-    }
-
-    std::vector<float> m3(r1 * c2);
-    for (int i = 0; i < r1; i++) {
-        for (int j = 0; j < c2; j++) {
-            for (int k = 0; k < c1; k++) {
-                m3[i * r1 + j] += m1[i * r1 + k] * m2[k * r2 + j];
-            }
-        }
-    }
-
-    return m3;
-}
-
 int main() {
     // Initializing window system
     glfwInit();
@@ -165,13 +146,8 @@ int main() {
 
     GameObject pyramid;
 
-    Vector3 movement;
+    Vector3 movement, rotation, scale = Vector3::one;
     float moveSpeed = 0.01f;
-
-
-    float cosTheta, senTheta;
-
-
 
     // Base square
     Color color = Color::yellow;
@@ -198,88 +174,35 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
             movement.z += 1.0f;
 
-        pyramid.transform.position = Vector3::moveTowards(pyramid.transform.position, pyramid.transform.position + movement, moveSpeed);
+        pyramid.transform.setPosition(Vector3::moveTowards(pyramid.transform.getPosition(), pyramid.transform.getPosition() + movement, moveSpeed));
 
         // Rotation input
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            pyramid.transform.rotation.x += 5;
+            rotation.x += 5;
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            pyramid.transform.rotation.x -= 5;
+            rotation.x -= 5;
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            pyramid.transform.rotation.y += 5;
+            rotation.y += 5;
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            pyramid.transform.rotation.y -= 5;
+            rotation.y -= 5;
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-            pyramid.transform.rotation.z -= 5;
+            rotation.z -= 5;
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-            pyramid.transform.rotation.z += 5;
+            rotation.z += 5;
+
+        pyramid.transform.setRotation(rotation);
 
         // Scale input
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
-            pyramid.transform.scale += Vector3(0.01f, 0.01f, 0.01f);
+            scale += Vector3(0.01f, 0.01f, 0.01f);
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-            pyramid.transform.scale -= Vector3(0.01f, 0.01f, 0.01f);
+            scale -= Vector3(0.01f, 0.01f, 0.01f);
 
-        // Translation matrix
-        std::vector<float> translationMatrix = {
-            1.0f, 0.0f, 0.0f, pyramid.transform.position.x,
-            0.0f, 1.0f, 0.0f, pyramid.transform.position.y,
-            0.0f, 0.0f, 1.0f, pyramid.transform.position.z,
-            0.0f, 0.0f, 0.0f, 1.0f
-        };
-
-        // Rotation matrices
-        // X
-        cosTheta = cos(pyramid.transform.rotation.x * (M_PI / 180));
-        senTheta = sin(pyramid.transform.rotation.x * (M_PI / 180));
-
-        std::vector<float> rotationXMatrix = {
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, cosTheta, -senTheta, 0.0f,
-            0.0f, senTheta,  cosTheta, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
-        };
-
-        // Y
-        cosTheta = cos(pyramid.transform.rotation.y * (M_PI / 180));
-        senTheta = sin(pyramid.transform.rotation.y * (M_PI / 180));
-
-        std::vector<float> rotationYMatrix = {
-            cosTheta, 0.0f, senTheta, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            -senTheta, 0.0f, cosTheta, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
-        };
-
-        // Z
-        cosTheta = cos(pyramid.transform.rotation.z * (M_PI / 180));
-        senTheta = sin(pyramid.transform.rotation.z * (M_PI / 180));
-
-        std::vector<float> rotationZMatrix = {
-            cosTheta, -senTheta, 0.0f, 0.0f,
-            senTheta,  cosTheta, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
-        };
-        
-        // Scale matrix
-        std::vector<float> scaleMatrix = {
-            pyramid.transform.scale.x, 0.0f, 0.0f, 0.0f,
-            0.0f, pyramid.transform.scale.y, 0.0f, 0.0f,
-            0.0f, 0.0f, pyramid.transform.scale.z, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
-        };
-
-        // Multiplying all matrixes
-        std::vector<float> transformationMatrix = translationMatrix;
-        transformationMatrix = matrixMultiplication(transformationMatrix, 4, 4, rotationXMatrix, 4, 4);
-        transformationMatrix = matrixMultiplication(transformationMatrix, 4, 4, rotationYMatrix, 4, 4);
-        transformationMatrix = matrixMultiplication(transformationMatrix, 4, 4, rotationZMatrix, 4, 4);
-        transformationMatrix = matrixMultiplication(transformationMatrix, 4, 4, scaleMatrix, 4, 4);
+        pyramid.transform.setScale(scale);
 
         // Sending transformation matrix to GPU
         locPosition = glGetUniformLocation(program, "transformationMatrix");
-        glUniformMatrix4fv(locPosition, 1, GL_TRUE, transformationMatrix.data());
+        glUniformMatrix4fv(locPosition, 1, GL_TRUE, pyramid.transform.getTransformationMatrix().data());
 
         pyramid.renderer.draw(locColor);
 
