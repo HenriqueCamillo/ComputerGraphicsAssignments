@@ -64,6 +64,55 @@ std::vector<Vector3> Shapes::createStar(float innerRadius, float outerRadius, Ve
     return vertices;
 }
 
+std::vector<Vector3> Shapes::createStarPrism(float innerRadius, float outerRadius, float height, Vector3 center) {
+    std::vector<Vector3> vertices;
+
+    float offset = height / 2.0f;
+    std::vector<Vector3> base = Shapes::createStar(innerRadius, outerRadius, center + Vector3(0.0f, 0.0f, offset));
+    std::vector<Vector3> top = Shapes::createStar(innerRadius, outerRadius, center + Vector3(0.0f, 0.0f, -offset));
+
+    vertices.insert(vertices.end(), base.begin(), base.end());
+    vertices.insert(vertices.end(), top.begin(), top.end());
+
+    for (int i = 0; i < 11; i++) {
+        vertices.push_back(base[i]);
+        vertices.push_back(top[i]);
+    }
+    vertices.push_back(base[0]);
+    vertices.push_back(top[0]);
+
+    return vertices;
+
+}
+
+std::vector<Vector3> Shapes::createCube(float size, Vector3 center) {
+    return Shapes::createParallelepiped(size, size, size, center);
+}
+
+std::vector<Vector3> Shapes::createParallelepiped(float width, float length, float height, Vector3 center) {
+    std::vector<Vector3> vertices;
+
+    float offset = height / 2.0f;
+    std::vector<Vector3> base = Shapes::createRectangle(width, length, center + Vector3(0.0f, 0.0f, offset));
+    std::vector<Vector3> top = Shapes::createRectangle(width, length, center + Vector3(0.0f, 0.0f, -offset));
+
+    vertices.insert(vertices.end(), base.begin(), base.end());
+    vertices.insert(vertices.end(), top.begin(), top.end());
+
+    vertices.push_back(base[0]);
+    vertices.push_back(top[0]);
+    vertices.push_back(base[1]);
+    vertices.push_back(top[1]);
+    vertices.push_back(base[3]);
+    vertices.push_back(top[3]);
+    vertices.push_back(base[2]);
+    vertices.push_back(top[2]);
+    vertices.push_back(base[0]);
+    vertices.push_back(top[0]);
+
+    return vertices;
+}
+
 std::vector<Vector3> Shapes::createCylinder(float radius, float height, int nVertices, Vector3 center) {
     std::vector<Vector3> vertices;
 

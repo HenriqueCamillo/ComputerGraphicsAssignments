@@ -122,18 +122,164 @@ int main() {
     glLinkProgram(program);
     glUseProgram(program);
  
-    //* Vertices that wil be sent to GPU
-    std::vector<Vector3> vertices;
-    std::vector<Vector3> obj;
 
-    obj = Shapes::createStar(0.2f, 0.4f);
-    vertices.insert(vertices.end(), obj.begin(), obj.end());
+    // Vertices that wil be sent to GPU
+    std::vector<Vector3> vertices;
+    std::vector<Vector3> objVertices;   // temporary variable
+
+    // List of selectable objects
+    std::vector<GameObject*> objects;
+    GameObject pyramid, cylinder, star, parallelepiped, key;
+
+    Color color;
+    int start;
+
+
+    //** Cylinder    
+    objVertices = Shapes::createCylinder(0.2f, 0.3f);
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base and Top
+    color = Color::green;
+    cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
+    cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
+
+    // Column
+    start = Renderer::currentVertex;
+    for (int i = 0; i < 64; i++) {
+        color = i % 2 == 0 ? Color::green : Color::lime;
+        cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+
+    objects.push_back(&cylinder);
     
-    // obj = Shapes::createPyramid(0.4f, 0.2f);
-    // vertices.insert(vertices.end(), obj.begin(), obj.end());
+    //** Parallelepiped
+    objVertices = Shapes::createParallelepiped(0.2f, 0.4f, 0.3f);
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
     
-    // obj = Shapes::createCylinder(0.2f, 0.3f);
-    // vertices.insert(vertices.end(), obj.begin(), obj.end());
+    // Base and Top
+    color = Color::red;
+    parallelepiped.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+    parallelepiped.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+
+    // Column
+    start = Renderer::currentVertex;
+    for (int i = 0; i < 4; i++) {
+        color = i % 2 == 0 ? Color::orange : Color::brown;
+        parallelepiped.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+
+    objects.push_back(&parallelepiped);
+
+    //** Pyramid
+    objVertices = Shapes::createPyramid(0.4f, 0.2f);
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base square
+    color = Color::yellow;
+    pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+
+    // Triangular faces
+    for (int i = 0; i < 4; i++) {
+        color = i % 2 == 0 ? Color::orange : Color::red;
+        pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, 3, color));
+    }
+
+    objects.push_back(&pyramid);
+
+    //** Star
+    objVertices = Shapes::createStarPrism(0.2f, 0.4f, 0.3f);
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base and Top
+    color = Color::purple;    
+    for (int i = 0; i < 2; i++) {
+        // Star sharp edges
+        start = Renderer::currentVertex;
+        for (int i = 0; i < 10; i += 2) {
+            star.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, start + i, 3, color));
+        }
+
+        // Center
+        star.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 5, color));
+    }
+
+    // Column
+    start = Renderer::currentVertex;
+    color = Color::blue;
+    for (int i = 0; i < 11; i++) {
+        star.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+
+    objects.push_back(&star);
+
+    //** Key
+    //* Cilinder
+    objVertices = Shapes::createCylinder(0.2f, 0.2f);
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base and Top
+    color = Color::yellow;
+    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
+    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
+
+    // Column
+    start = Renderer::currentVertex;
+    color = Color::brown;
+    for (int i = 0; i < 64; i++) {
+        key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+
+    //* Horizontal Long Parallelepiped
+    objVertices = Shapes::createParallelepiped(0.4f, 0.1f, 0.2f, Vector3(0.3f, 0.0f, 0.0f));
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base and Top
+    color = Color::yellow;
+    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+
+    // Column
+    start = Renderer::currentVertex;
+    color = Color::brown;
+    for (int i = 0; i < 4; i++) {
+        key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+
+    //* Vertical Parallelepiped 1
+    objVertices = Shapes::createParallelepiped(0.05f, 0.1f, 0.2f, Vector3(0.3f, -0.1f, 0.0f));
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base and Top
+    color = Color::yellow;
+    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+
+    // Column
+    start = Renderer::currentVertex;
+    color = Color::brown;
+    for (int i = 0; i < 4; i++) {
+        key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+
+    //* Vertical Parallelepiped 2
+    objVertices = Shapes::createParallelepiped(0.05f, 0.1f, 0.2f, Vector3(0.45f, -0.1f, 0.0f));
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base and Top
+    color = Color::yellow;
+    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+
+    // Column
+    start = Renderer::currentVertex;
+    color = Color::brown;
+    for (int i = 0; i < 4; i++) {
+        key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+
+    objects.push_back(&key);
+
 
     // Creating buffer with vertices
     GLuint buffer;
@@ -163,65 +309,15 @@ int main() {
     // Set key callback
     glfwSetKeyCallback(window, onKey); 
 
-    // GameObject pyramid;
-    // GameObject cylinder;
-    GameObject star;
+    // Selects the first object
+    int currentSelected = 0;
 
-    Color color;
-
-    //* Star Setup
-    color = Color::yellow;
-    
-    int start = Renderer::currentVertex;
-
-    // Star sharp edges
-    for (int i = 0; i < 10; i += 2) {
-        star.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, start + i, 3, color));
-    }
-
-    // Center
-    std::cout << "cur = " << Renderer::currentVertex <<std::endl;
-    star.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 5, color));
-
-    // //* Pyramid Setup
-    // // Base square
-    // color = Color::yellow;
-    // pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-
-    // // Triangular faces
-    // for (int i = 0; i < 4; i++) {
-    //     color = i % 2 == 0 ? Color::orange : Color::red;
-    //     pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, 3, color));
-    // }
-
-    // //* Cylinder Setup
-    // // Base and Top
-    // color = Color::green;
-    // cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
-    // cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
-
-    // // Column
-    // int currentVertex = Renderer::currentVertex;
-    // for (int i = 0; i < 64; i++) {
-    //     color = i % 2 == 0 ? Color::green : Color::lime;
-    //     cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, currentVertex + i * 2, 4, color));
-    // }
-
-    
-    // Gets references for all GameObjects and selects the first one
-    const std::set<GameObject*>* allObjects = GameObject::getAll();
-    if (allObjects->size() == 0) {
-        std::cout << "Exiting...\nNo GameObjects located." << std::endl;
-        return 0;
-    }
-
-    std::set<GameObject*>::iterator selectedObject = allObjects->begin();
-
-
+    // Resets the variables according to the selected object
     Vector3 movement = Vector3::zero;
-    Vector3 rotation = (*selectedObject)->transform.getRotation();
-    Vector3 scale = (*selectedObject)->transform.getScale();
+    Vector3 rotation = objects[currentSelected]->transform.getRotation();
+    Vector3 scale = objects[currentSelected]->transform.getScale();
 
+    // Defines speeds
     float moveSpeed = 0.01f;
     float rotationSpeed = 5.0f;
     float scaleSpeed = 0.01f;
@@ -236,14 +332,14 @@ int main() {
 
         // Changes selected object
         if (pressedSpace) {
-            if (++selectedObject == allObjects->end()) {
-                selectedObject = allObjects->begin();
+            if (++currentSelected >= objects.size()) {
+                currentSelected = 0;
             }
             
             pressedSpace = false;
 
-            rotation = (*selectedObject)->transform.getRotation();
-            scale = (*selectedObject)->transform.getScale();
+            rotation = objects[currentSelected]->transform.getRotation();
+            scale = objects[currentSelected]->transform.getScale();
         }
 
         // Translation input
@@ -253,7 +349,7 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
             movement.z += moveSpeed;
 
-        (*selectedObject)->transform.setPosition(Vector3::moveTowards((*selectedObject)->transform.getPosition(), (*selectedObject)->transform.getPosition() + movement, moveSpeed));
+        objects[currentSelected]->transform.setPosition(Vector3::moveTowards(objects[currentSelected]->transform.getPosition(), objects[currentSelected]->transform.getPosition() + movement, moveSpeed));
 
         // Rotation input
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -269,7 +365,7 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
             rotation.z += rotationSpeed;
 
-        (*selectedObject)->transform.setRotation(rotation);
+        objects[currentSelected]->transform.setRotation(rotation);
 
         // Scale input
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
@@ -277,15 +373,17 @@ int main() {
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
             scale -= Vector3(scaleSpeed, scaleSpeed, scaleSpeed);
 
-        (*selectedObject)->transform.setScale(scale);
+        objects[currentSelected]->transform.setScale(scale);
 
         // Get transformation matrix location in GPU
         locPosition = glGetUniformLocation(program, "transformationMatrix");
 
-        // Send transformation matrix for each GameObject and draws it
-        for (auto it = allObjects->begin(); it != allObjects->end(); it++) {
-            glUniformMatrix4fv(locPosition, 1, GL_TRUE, (*it)->transform.getTransformationMatrix().data());
-            (*it)->renderer.draw(locColor);
+        // Send transformation matrix for each enabled GameObject and draws it
+        for (auto it = GameObject::getAll()->begin(); it != GameObject::getAll()->end(); it++) {
+            if ((*it)->renderer.enabled) {
+                glUniformMatrix4fv(locPosition, 1, GL_TRUE, (*it)->transform.getTransformationMatrix().data());
+                (*it)->renderer.draw(locColor);
+            }
         }
 
         glfwSwapBuffers(window);
