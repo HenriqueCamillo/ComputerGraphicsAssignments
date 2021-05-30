@@ -123,9 +123,17 @@ int main() {
     glUseProgram(program);
  
     //* Vertices that wil be sent to GPU
-    std::vector<Vector3> vertices = Shapes::createPyramid(0.4f, 0.2f);
-    std::vector<Vector3> obj = Shapes::createCylinder(0.2f, 0.3f);
+    std::vector<Vector3> vertices;
+    std::vector<Vector3> obj;
+
+    obj = Shapes::createStar(0.2f, 0.4f);
     vertices.insert(vertices.end(), obj.begin(), obj.end());
+    
+    // obj = Shapes::createPyramid(0.4f, 0.2f);
+    // vertices.insert(vertices.end(), obj.begin(), obj.end());
+    
+    // obj = Shapes::createCylinder(0.2f, 0.3f);
+    // vertices.insert(vertices.end(), obj.begin(), obj.end());
 
     // Creating buffer with vertices
     GLuint buffer;
@@ -155,35 +163,49 @@ int main() {
     // Set key callback
     glfwSetKeyCallback(window, onKey); 
 
-    GameObject pyramid;
-    GameObject cylinder;
+    // GameObject pyramid;
+    // GameObject cylinder;
+    GameObject star;
 
-    Vector3 movement, rotation, scale = Vector3::one;
-    float moveSpeed = 0.01f;
+    Color color;
 
-    //* Pyramid Setup
-    // Base square
-    Color color = Color::yellow;
-    pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+    //* Star Setup
+    color = Color::yellow;
+    
+    int start = Renderer::currentVertex;
 
-    // Triangular faces
-    for (int i = 0; i < 4; i++) {
-        color = i % 2 == 0 ? Color::orange : Color::red;
-        pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, 3, color));
+    // Star sharp edges
+    for (int i = 0; i < 10; i += 2) {
+        star.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, start + i, 3, color));
     }
 
-    //* Cylinder Setup
-    // Base and Top
-    color = Color::green;
-    cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
-    cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
+    // Center
+    std::cout << "cur = " << Renderer::currentVertex <<std::endl;
+    star.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 5, color));
 
-    // Column
-    int currentVertex = Renderer::currentVertex;
-    for (int i = 0; i < 64; i++) {
-        color = i % 2 == 0 ? Color::green : Color::lime;
-        cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, currentVertex + i * 2, 4, color));
-    }
+    // //* Pyramid Setup
+    // // Base square
+    // color = Color::yellow;
+    // pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+
+    // // Triangular faces
+    // for (int i = 0; i < 4; i++) {
+    //     color = i % 2 == 0 ? Color::orange : Color::red;
+    //     pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, 3, color));
+    // }
+
+    // //* Cylinder Setup
+    // // Base and Top
+    // color = Color::green;
+    // cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
+    // cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
+
+    // // Column
+    // int currentVertex = Renderer::currentVertex;
+    // for (int i = 0; i < 64; i++) {
+    //     color = i % 2 == 0 ? Color::green : Color::lime;
+    //     cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, currentVertex + i * 2, 4, color));
+    // }
 
     
     // Gets references for all GameObjects and selects the first one
@@ -195,6 +217,15 @@ int main() {
 
     std::set<GameObject*>::iterator selectedObject = allObjects->begin();
 
+
+    Vector3 movement = Vector3::zero;
+    Vector3 rotation = (*selectedObject)->transform.getRotation();
+    Vector3 scale = (*selectedObject)->transform.getScale();
+
+    float moveSpeed = 0.01f;
+    float rotationSpeed = 5.0f;
+    float scaleSpeed = 0.01f;
+    
     // Loop that will run while the screen is being displayed
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -218,33 +249,33 @@ int main() {
         // Translation input
         movement = Vector3(Input::getAxis(window, "Horizontal"), Input::getAxis(window, "Vertical"), 0.0f);
         if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
-            movement.z -= 1.0f;
+            movement.z -= moveSpeed;
         if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
-            movement.z += 1.0f;
+            movement.z += moveSpeed;
 
         (*selectedObject)->transform.setPosition(Vector3::moveTowards((*selectedObject)->transform.getPosition(), (*selectedObject)->transform.getPosition() + movement, moveSpeed));
 
         // Rotation input
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            rotation.x += 5;
+            rotation.x += rotationSpeed;
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            rotation.x -= 5;
+            rotation.x -= rotationSpeed;
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            rotation.y += 5;
+            rotation.y += rotationSpeed;
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            rotation.y -= 5;
+            rotation.y -= rotationSpeed;
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-            rotation.z -= 5;
+            rotation.z -= rotationSpeed;
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-            rotation.z += 5;
+            rotation.z += rotationSpeed;
 
         (*selectedObject)->transform.setRotation(rotation);
 
         // Scale input
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
-            scale += Vector3(0.01f, 0.01f, 0.01f);
+            scale += Vector3(scaleSpeed, scaleSpeed, scaleSpeed);
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-            scale -= Vector3(0.01f, 0.01f, 0.01f);
+            scale -= Vector3(scaleSpeed, scaleSpeed, scaleSpeed);
 
         (*selectedObject)->transform.setScale(scale);
 

@@ -32,6 +32,38 @@ std::vector<Vector3> Shapes::createCircle(float radius, int nVertices, Vector3 c
     return vertices;
 }
 
+std::vector<Vector3> Shapes::createRegularPolygon(float radius, int n, Vector3 center) {
+    std::vector<Vector3> vertices;
+
+    if (n < 3) {
+        std::cout << "Invalid number of vertices (" << n << "). Can't create polygon" << std::endl;
+        return vertices;
+    }
+
+    for (int i = 0; i < n; i++) {
+        vertices.push_back(Vector3(radius * sin(2 * M_PI * i / n), radius * cos(2 * M_PI * i / n), center.z));
+    }
+
+    return vertices;
+}
+
+std::vector<Vector3> Shapes::createStar(float innerRadius, float outerRadius, Vector3 center) {
+    std::vector<Vector3> vertices;
+
+    std::vector<Vector3> p1 = Shapes::createRegularPolygon(innerRadius, 5, center);
+    std::vector<Vector3> p2 = Shapes::createRegularPolygon(outerRadius, 5, center);
+
+    for (int i = 0; i < 5; i++) {
+        vertices.push_back(p1[i]);
+        vertices.push_back(p2[i]);
+    }
+    vertices.push_back(p1[0]);
+
+    vertices.insert(vertices.end(), p1.begin(), p1.end());
+
+    return vertices;
+}
+
 std::vector<Vector3> Shapes::createCylinder(float radius, float height, int nVertices, Vector3 center) {
     std::vector<Vector3> vertices;
 

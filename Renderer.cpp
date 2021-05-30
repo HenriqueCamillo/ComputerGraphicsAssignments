@@ -1,6 +1,7 @@
 #include "Renderer.hpp"
 #include "Color.hpp"
 #include <GL/glew.h>  
+#include <iostream>
 
 Renderer::Renderer() : enabled(true) {}
 Renderer::~Renderer() {}
@@ -9,7 +10,11 @@ int Renderer::currentVertex = 0;
 
 void Renderer::addRenderingInstruction(RenderingInstructions renderingInstruction) {
     renderingInstructions.push_back(renderingInstruction);
-    Renderer::currentVertex += renderingInstruction.size;
+
+    int end = renderingInstruction.start + renderingInstruction.size;
+    if (end > currentVertex) {
+        currentVertex = end;
+    }
 }
 
 void Renderer::draw() {
