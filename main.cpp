@@ -22,10 +22,8 @@
 #include <sstream>
 #include <string.h>
 
-float sx = 1;
-float sy = 1;
-float tx = 0;
-float ty = 0;
+bool pressedSpace = false;
+
 
 char* fileToString(std::string fileName) {
     std::ifstream file(fileName);
@@ -39,6 +37,14 @@ char* fileToString(std::string fileName) {
     return string;
 }
 
+void onKey(GLFWwindow* window, int key, int scanCode, int action, int mods)
+{
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        pressedSpace = true;
+    }
+}
+
+
 int main() {
     // Initializing window system
     glfwInit();
@@ -48,7 +54,7 @@ int main() {
 
  
     // Creating window
-    GLFWwindow* window = glfwCreateWindow(600, 600, "Ex2 - 3", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(600, 600, "T1", NULL, NULL);
 
     // Setting windows as our main window
     glfwMakeContextCurrent(window);
@@ -116,9 +122,11 @@ int main() {
     glLinkProgram(program);
     glUseProgram(program);
  
-    // Vertices that wil be sent to GPU
+    //* Vertices that wil be sent to GPU
     std::vector<Vector3> vertices = Shapes::createPyramid(0.4f, 0.2f);
-     
+    std::vector<Vector3> obj = Shapes::createCylinder(0.2f, 0.3f);
+    vertices.insert(vertices.end(), obj.begin(), obj.end());
+
     // Creating buffer with vertices
     GLuint buffer;
     glGenBuffers(1, &buffer);
@@ -144,11 +152,16 @@ int main() {
     // Enables polygon mode 
     // glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
+    // Set key callback
+    glfwSetKeyCallback(window, onKey); 
+
     GameObject pyramid;
+    GameObject cylinder;
 
     Vector3 movement, rotation, scale = Vector3::one;
     float moveSpeed = 0.01f;
 
+    //* Pyramid Setup
     // Base square
     Color color = Color::yellow;
     pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
@@ -159,6 +172,29 @@ int main() {
         pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, 3, color));
     }
 
+    //* Cylinder Setup
+    // Base and Top
+    color = Color::green;
+    cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
+    cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
+
+    // Column
+    int currentVertex = Renderer::currentVertex;
+    for (int i = 0; i < 64; i++) {
+        color = i % 2 == 0 ? Color::green : Color::lime;
+        cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, currentVertex + i * 2, 4, color));
+    }
+
+    
+    // Gets references for all GameObjects and selects the first one
+    const std::set<GameObject*>* allObjects = GameObject::getAll();
+    if (allObjects->size() == 0) {
+        std::cout << "Exiting...\nNo GameObjects located." << std::endl;
+        return 0;
+    }
+
+    std::set<GameObject*>::iterator selectedObject = allObjects->begin();
+
     // Loop that will run while the screen is being displayed
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -167,6 +203,18 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(color.r, color.g, color.b, color.a);
 
+        // Changes selected object
+        if (pressedSpace) {
+            if (++selectedObject == allObjects->end()) {
+                selectedObject = allObjects->begin();
+            }
+            
+            pressedSpace = false;
+
+            rotation = (*selectedObject)->transform.getRotation();
+            scale = (*selectedObject)->transform.getScale();
+        }
+
         // Translation input
         movement = Vector3(Input::getAxis(window, "Horizontal"), Input::getAxis(window, "Vertical"), 0.0f);
         if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
@@ -174,7 +222,7 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
             movement.z += 1.0f;
 
-        pyramid.transform.setPosition(Vector3::moveTowards(pyramid.transform.getPosition(), pyramid.transform.getPosition() + movement, moveSpeed));
+        (*selectedObject)->transform.setPosition(Vector3::moveTowards((*selectedObject)->transform.getPosition(), (*selectedObject)->transform.getPosition() + movement, moveSpeed));
 
         // Rotation input
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -190,7 +238,7 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
             rotation.z += 5;
 
-        pyramid.transform.setRotation(rotation);
+        (*selectedObject)->transform.setRotation(rotation);
 
         // Scale input
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
@@ -198,13 +246,16 @@ int main() {
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
             scale -= Vector3(0.01f, 0.01f, 0.01f);
 
-        pyramid.transform.setScale(scale);
+        (*selectedObject)->transform.setScale(scale);
 
-        // Sending transformation matrix to GPU
+        // Get transformation matrix location in GPU
         locPosition = glGetUniformLocation(program, "transformationMatrix");
-        glUniformMatrix4fv(locPosition, 1, GL_TRUE, pyramid.transform.getTransformationMatrix().data());
 
-        pyramid.renderer.draw(locColor);
+        // Send transformation matrix for each GameObject and draws it
+        for (auto it = allObjects->begin(); it != allObjects->end(); it++) {
+            glUniformMatrix4fv(locPosition, 1, GL_TRUE, (*it)->transform.getTransformationMatrix().data());
+            (*it)->renderer.draw(locColor);
+        }
 
         glfwSwapBuffers(window);
     }

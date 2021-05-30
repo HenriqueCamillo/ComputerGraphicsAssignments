@@ -2,15 +2,14 @@
 
 #include "Transform.hpp"
 #include "Renderer.hpp"
-#include <unordered_set>
+#include <set>
 
 class GameObject {
 private:
-    static std::unordered_set<GameObject*> all;
-
+    static std::set<GameObject*> all;
 
 public:
-    const std::unordered_set<GameObject*>& getAll() const;
+    static const std::set<GameObject*>* getAll();
 
     Transform transform;
     Renderer renderer;

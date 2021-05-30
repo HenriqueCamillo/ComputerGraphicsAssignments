@@ -1,6 +1,6 @@
 #include "GameObject.hpp"
 
-std::unordered_set<GameObject*> GameObject::all;
+std::set<GameObject*> GameObject::all;
 
 GameObject::GameObject() {
     all.insert(this);
@@ -10,6 +10,6 @@ GameObject::~GameObject() {
     all.erase(this);
 }
 
-const std::unordered_set<GameObject*>& GameObject::getAll() const {
-    return all;
+const std::set<GameObject*>* GameObject::getAll() {
+    return &all;
 }

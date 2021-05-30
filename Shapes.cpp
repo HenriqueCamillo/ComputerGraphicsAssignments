@@ -32,7 +32,7 @@ std::vector<Vector3> Shapes::createCircle(float radius, int nVertices, Vector3 c
     return vertices;
 }
 
-std::vector<Vector3> Shapes::createCilinder(float radius, float height, int nVertices, Vector3 center) {
+std::vector<Vector3> Shapes::createCylinder(float radius, float height, int nVertices, Vector3 center) {
     std::vector<Vector3> vertices;
 
     float offset = height / 2.0f;
