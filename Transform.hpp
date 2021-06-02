@@ -5,6 +5,7 @@
 
 class Transform {
 private:
+    // Indicates if the matrixes need to be updated
     bool translationDirty;
     bool rotationDirty;
     bool scaleDirty;

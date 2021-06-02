@@ -21,6 +21,7 @@
 #include <fstream>
 #include <sstream>
 #include <string.h>
+#include <time.h>
 
 bool pressedSpace = false;
 
@@ -130,9 +131,14 @@ int main() {
     // List of selectable objects
     std::vector<GameObject*> objects;
     GameObject pyramid, cylinder, star, parallelepiped, key;
+    GameObject pyramidSlot, cylinderSlot, starSlot, parallelepipedSlot, keySlot;
 
     Color color;
     int start;
+    
+    float randScale;
+    Vector3 randRotation;
+    std::srand((unsigned)time(NULL));
 
 
     //** Cylinder    
@@ -213,6 +219,41 @@ int main() {
 
     objects.push_back(&star);
 
+    //** Star Slot
+    objVertices = Shapes::createStarPrism(0.2f, 0.4f, 0.3f);
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base and Top
+    color = Color::black;    
+    for (int i = 0; i < 2; i++) {
+        // Star sharp edges
+        start = Renderer::currentVertex;
+        for (int i = 0; i < 10; i += 2) {
+            starSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, start + i, 3, color));
+        }
+
+        // Center
+        starSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 5, color));
+    }
+
+    // Column
+    start = Renderer::currentVertex;
+    for (int i = 0; i < 11; i++) {
+        starSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+
+    // Put object in position, and in a random scale and rotation
+    starSlot.transform.setPosition(Vector3(0.6f, 0.6f, 0.5f));
+
+    randScale = 0.5f + (float)std::rand() / RAND_MAX;
+    starSlot.transform.setScale(Vector3(randScale, randScale, randScale));
+
+    randRotation.x = std::rand() % 360;
+    randRotation.y = std::rand() % 360;
+    randRotation.z = std::rand() % 360;
+    starSlot.transform.setRotation(randRotation);
+
+
     //** Key
     //* Cilinder
     objVertices = Shapes::createCylinder(0.2f, 0.2f);
@@ -280,6 +321,76 @@ int main() {
 
     objects.push_back(&key);
 
+    //** Key Slot
+    //* Cilinder
+    objVertices = Shapes::createCylinder(0.2f, 0.2f);
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base and Top
+    color = Color::black;
+    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
+    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
+
+    // Column
+    start = Renderer::currentVertex;
+    for (int i = 0; i < 64; i++) {
+        keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+
+    //* Horizontal Long Parallelepiped
+    objVertices = Shapes::createParallelepiped(0.4f, 0.1f, 0.2f, Vector3(0.3f, 0.0f, 0.0f));
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base and Top
+    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+
+    // Column
+    start = Renderer::currentVertex;
+    for (int i = 0; i < 4; i++) {
+        keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+
+    //* Vertical Parallelepiped 1
+    objVertices = Shapes::createParallelepiped(0.05f, 0.1f, 0.2f, Vector3(0.3f, -0.1f, 0.0f));
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base and Top
+    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+
+    // Column
+    start = Renderer::currentVertex;
+    for (int i = 0; i < 4; i++) {
+        keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+
+    //* Vertical Parallelepiped 2
+    objVertices = Shapes::createParallelepiped(0.05f, 0.1f, 0.2f, Vector3(0.45f, -0.1f, 0.0f));
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base and Top
+    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+
+    // Column
+    start = Renderer::currentVertex;
+    for (int i = 0; i < 4; i++) {
+        keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+
+    // Put object in position, and in a random scale and rotation
+    keySlot.transform.setPosition(Vector3(0.6f, -0.6f, 0.5f));
+
+    randScale = 0.5f + (float)std::rand() / RAND_MAX;
+    keySlot.transform.setScale(Vector3(randScale, randScale, randScale));
+
+    randRotation.x = std::rand() % 360;
+    randRotation.y = std::rand() % 360;
+    randRotation.z = std::rand() % 360;
+    keySlot.transform.setRotation(randRotation);
+
+
 
     // Creating buffer with vertices
     GLuint buffer;
@@ -313,7 +424,8 @@ int main() {
     int currentSelected = 0;
 
     // Resets the variables according to the selected object
-    Vector3 movement = Vector3::zero;
+    Vector3 movement;
+    Vector3 rotationToBeAdded;
     Vector3 rotation = objects[currentSelected]->transform.getRotation();
     Vector3 scale = objects[currentSelected]->transform.getScale();
 
@@ -343,7 +455,7 @@ int main() {
         }
 
         // Translation input
-        movement = Vector3(Input::getAxis(window, "Horizontal"), Input::getAxis(window, "Vertical"), 0.0f);
+        movement = Vector3(Input::getAxis(window, "HorizontalArrows"), Input::getAxis(window, "VerticalArrows"), 0.0f);
         if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
             movement.z -= moveSpeed;
         if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
@@ -352,18 +464,12 @@ int main() {
         objects[currentSelected]->transform.setPosition(Vector3::moveTowards(objects[currentSelected]->transform.getPosition(), objects[currentSelected]->transform.getPosition() + movement, moveSpeed));
 
         // Rotation input
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            rotation.x += rotationSpeed;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            rotation.x -= rotationSpeed;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            rotation.y += rotationSpeed;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            rotation.y -= rotationSpeed;
+        rotationToBeAdded = Vector3(Input::getAxis(window, "VerticalWASD") * rotationSpeed, -Input::getAxis(window, "HorizontalWASD") * rotationSpeed, 0.0f);
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
             rotation.z -= rotationSpeed;
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
             rotation.z += rotationSpeed;
+        rotation += rotationToBeAdded;
 
         objects[currentSelected]->transform.setRotation(rotation);
 

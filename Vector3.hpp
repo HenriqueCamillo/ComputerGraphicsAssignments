@@ -26,7 +26,10 @@ public:
 
     float magnitude();
     Vector3 normalized();
+
+    // Returns the destination from an object trying to move from origin to destination, walking at most maxDistanceDelta
     static Vector3 moveTowards(Vector3 origin, Vector3 destination, float maxDistanceDelta);
+
     std::string toString();
 
     operator Vector2();
