@@ -129,8 +129,8 @@ int main() {
 
     // List of selectable objects
     std::vector<GameObject*> objects;
-    GameObject pyramid, cylinder, star, parallelepiped, key;
-    GameObject pyramidSlot, cylinderSlot, starSlot, parallelepipedSlot, keySlot;
+    GameObject pyramid, cylinder, star, arrow, key;
+    GameObject pyramidSlot, cylinderSlot, starSlot, arrowSlot, keySlot;
 
     Color color;
     int start;
@@ -186,50 +186,78 @@ int main() {
     cylinderSlot.transform.setRotation(randRotation);
 
 // ================================================================================================ //
-    
-    //** Parallelepiped
-    objVertices = Shapes::createParallelepiped(0.2f, 0.4f, 0.3f);
+
+    //** Arrow    
+    //* Cylinder    
+    objVertices = Shapes::createCylinder(0.05f, 0.5f, 16, Vector3(0.0f, 0.0f, -0.125f));
     vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-    
+
     // Base and Top
-    color = Color::red;
-    parallelepiped.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-    parallelepiped.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+    color = Color::orange;
+    arrow.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 16, color));
+    arrow.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 16, color));
 
     // Column
     start = Renderer::currentVertex;
-    for (int i = 0; i < 4; i++) {
-        color = i % 2 == 0 ? Color::orange : Color::brown;
-        parallelepiped.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    for (int i = 0; i < 16; i++) {
+        color = i % 2 == 0 ? Color::red : Color::orange;
+        arrow.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
     }
 
-    objects.push_back(&parallelepiped);
+    //* Pyramid
+    objVertices = Shapes::createPyramid(0.2f, 0.1f, Vector3(0.0f, 0.0f, 0.125f));
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base square
+    color = Color::brown;
+    arrow.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+
+    // Triangular faces
+    for (int i = 0; i < 4; i++) {
+        color = i % 2 == 0 ? Color::red : Color::orange;
+        arrow.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, 3, color));
+    }
+
+    objects.push_back(&arrow);
  
 // ================================================================================================ //
-
-    //** Parallelepiped Slot
-    objVertices = Shapes::createParallelepiped(0.2f, 0.4f, 0.3f);
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
     
+    //** Arrow Slot
+    //* Cylinder    
+    objVertices = Shapes::createCylinder(0.05f, 0.5f, 16, Vector3(0.0f, 0.0f, -0.125f));
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
     // Base and Top
     color = Color::black;
-    parallelepipedSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-    parallelepipedSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+    arrowSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 16, color));
+    arrowSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 16, color));
 
     // Column
     start = Renderer::currentVertex;
-    for (int i = 0; i < 4; i++) {
-        parallelepipedSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    for (int i = 0; i < 16; i++) {
+        arrowSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
     }
-    
+
+    //* Pyramid
+    objVertices = Shapes::createPyramid(0.2f, 0.1f, Vector3(0.0f, 0.0f, 0.125f));
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base square
+    arrowSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+
+    // Triangular faces
+    for (int i = 0; i < 4; i++) {
+        arrowSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, 3, color));
+    }
+
     // Put object in position, and in a random scale and rotation
-    parallelepipedSlot.transform.setPosition(Vector3(0.0f, 0.0f, 0.5f));
+    arrowSlot.transform.setPosition(Vector3(0.0f, 0.0f, 0.5f));
 
     randScale = 0.5f + (float)std::rand() / RAND_MAX;
-    parallelepipedSlot.transform.setScale(Vector3(randScale, randScale, randScale));
+    arrowSlot.transform.setScale(Vector3(randScale, randScale, randScale));
 
     randRotation = Vector3(std::rand() % 360, std::rand() % 360, std::rand() % 360);
-    parallelepipedSlot.transform.setRotation(randRotation);
+    arrowSlot.transform.setRotation(randRotation);
 
 // ================================================================================================ //
     
