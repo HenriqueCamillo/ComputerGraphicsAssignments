@@ -11,4 +11,4 @@ clean:
 	rm ./main
 
 zip: clean
-	zip Ex.zip *cpp *.hpp *.vert *.frag Makefile
+	zip Ex.zip *cpp *.hpp *.vert *.frag Makefile *.md

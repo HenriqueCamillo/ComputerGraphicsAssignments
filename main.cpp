@@ -25,7 +25,7 @@
 
 bool pressedSpace = false;
 
-
+// Parses file to string. Used to read shader files.
 char* fileToString(std::string fileName) {
     std::ifstream file(fileName);
     std::stringstream stream;
@@ -38,6 +38,7 @@ char* fileToString(std::string fileName) {
     return string;
 }
 
+// Keyboard input callback
 void onKey(GLFWwindow* window, int key, int scanCode, int action, int mods)
 {
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
@@ -52,7 +53,6 @@ int main() {
 
     // Windows won't be visible for now
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-
  
     // Creating window
     GLFWwindow* window = glfwCreateWindow(600, 600, "T1", NULL, NULL);
@@ -122,11 +122,10 @@ int main() {
     // Linking program and setting as default
     glLinkProgram(program);
     glUseProgram(program);
- 
 
     // Vertices that wil be sent to GPU
     std::vector<Vector3> vertices;
-    std::vector<Vector3> objVertices;   // temporary variable
+    std::vector<Vector3> objVertices;   // auxiliary     variable
 
     // List of selectable objects
     std::vector<GameObject*> objects;
@@ -140,6 +139,7 @@ int main() {
     Vector3 randRotation;
     std::srand((unsigned)time(NULL));
 
+// ================================================================================================ //
 
     //** Cylinder    
     objVertices = Shapes::createCylinder(0.2f, 0.3f);
@@ -158,6 +158,8 @@ int main() {
     }
 
     objects.push_back(&cylinder);
+
+// ================================================================================================ //
 
     //** Cylinder Slot
     objVertices = Shapes::createCylinder(0.2f, 0.3f);
@@ -180,10 +182,10 @@ int main() {
     randScale = 0.5f + (float)std::rand() / RAND_MAX;
     cylinderSlot.transform.setScale(Vector3(randScale, randScale, randScale));
 
-    randRotation.x = std::rand() % 360;
-    randRotation.y = std::rand() % 360;
-    randRotation.z = std::rand() % 360;
+    randRotation = Vector3(std::rand() % 360, std::rand() % 360, std::rand() % 360);
     cylinderSlot.transform.setRotation(randRotation);
+
+// ================================================================================================ //
     
     //** Parallelepiped
     objVertices = Shapes::createParallelepiped(0.2f, 0.4f, 0.3f);
@@ -203,6 +205,8 @@ int main() {
 
     objects.push_back(&parallelepiped);
  
+// ================================================================================================ //
+
     //** Parallelepiped Slot
     objVertices = Shapes::createParallelepiped(0.2f, 0.4f, 0.3f);
     vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
@@ -224,10 +228,10 @@ int main() {
     randScale = 0.5f + (float)std::rand() / RAND_MAX;
     parallelepipedSlot.transform.setScale(Vector3(randScale, randScale, randScale));
 
-    randRotation.x = std::rand() % 360;
-    randRotation.y = std::rand() % 360;
-    randRotation.z = std::rand() % 360;
+    randRotation = Vector3(std::rand() % 360, std::rand() % 360, std::rand() % 360);
     parallelepipedSlot.transform.setRotation(randRotation);
+
+// ================================================================================================ //
     
     //** Pyramid
     objVertices = Shapes::createPyramid(0.4f, 0.2f);
@@ -244,6 +248,8 @@ int main() {
     }
 
     objects.push_back(&pyramid);
+
+// ================================================================================================ //
 
     //** Pyramid Slot
     objVertices = Shapes::createPyramid(0.4f, 0.2f);
@@ -264,10 +270,10 @@ int main() {
     randScale = 0.5f + (float)std::rand() / RAND_MAX;
     pyramidSlot.transform.setScale(Vector3(randScale, randScale, randScale));
 
-    randRotation.x = std::rand() % 360;
-    randRotation.y = std::rand() % 360;
-    randRotation.z = std::rand() % 360;
+    randRotation = Vector3(std::rand() % 360, std::rand() % 360, std::rand() % 360);
     pyramidSlot.transform.setRotation(randRotation);
+
+// ================================================================================================ //
     
     //** Star
     objVertices = Shapes::createStarPrism(0.2f, 0.4f, 0.3f);
@@ -294,6 +300,8 @@ int main() {
     }
 
     objects.push_back(&star);
+
+// ================================================================================================ //
 
     //** Star Slot
     objVertices = Shapes::createStarPrism(0.2f, 0.4f, 0.3f);
@@ -324,11 +332,10 @@ int main() {
     randScale = 0.5f + (float)std::rand() / RAND_MAX;
     starSlot.transform.setScale(Vector3(randScale, randScale, randScale));
 
-    randRotation.x = std::rand() % 360;
-    randRotation.y = std::rand() % 360;
-    randRotation.z = std::rand() % 360;
+    randRotation = Vector3(std::rand() % 360, std::rand() % 360, std::rand() % 360);
     starSlot.transform.setRotation(randRotation);
 
+// ================================================================================================ //
 
     //** Key
     //* Cilinder
@@ -397,6 +404,8 @@ int main() {
 
     objects.push_back(&key);
 
+// ================================================================================================ //
+
     //** Key Slot
     //* Cilinder
     objVertices = Shapes::createCylinder(0.2f, 0.2f);
@@ -461,12 +470,10 @@ int main() {
     randScale = 0.5f + (float)std::rand() / RAND_MAX;
     keySlot.transform.setScale(Vector3(randScale, randScale, randScale));
 
-    randRotation.x = std::rand() % 360;
-    randRotation.y = std::rand() % 360;
-    randRotation.z = std::rand() % 360;
+    randRotation = Vector3(std::rand() % 360, std::rand() % 360, std::rand() % 360);
     keySlot.transform.setRotation(randRotation);
 
-
+// ================================================================================================ //
 
     // Creating buffer with vertices
     GLuint buffer;
