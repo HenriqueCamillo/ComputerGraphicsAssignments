@@ -158,6 +158,32 @@ int main() {
     }
 
     objects.push_back(&cylinder);
+
+    //** Cylinder Slot
+    objVertices = Shapes::createCylinder(0.2f, 0.3f);
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base and Top
+    color = Color::black;
+    cylinderSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
+    cylinderSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
+
+    // Column
+    start = Renderer::currentVertex;
+    for (int i = 0; i < 64; i++) {
+        cylinderSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+
+    // Put object in position, and in a random scale and rotation
+    cylinderSlot.transform.setPosition(Vector3(-0.6f, 0.6f, 0.5f));
+
+    randScale = 0.5f + (float)std::rand() / RAND_MAX;
+    cylinderSlot.transform.setScale(Vector3(randScale, randScale, randScale));
+
+    randRotation.x = std::rand() % 360;
+    randRotation.y = std::rand() % 360;
+    randRotation.z = std::rand() % 360;
+    cylinderSlot.transform.setRotation(randRotation);
     
     //** Parallelepiped
     objVertices = Shapes::createParallelepiped(0.2f, 0.4f, 0.3f);
@@ -176,7 +202,33 @@ int main() {
     }
 
     objects.push_back(&parallelepiped);
+ 
+    //** Parallelepiped Slot
+    objVertices = Shapes::createParallelepiped(0.2f, 0.4f, 0.3f);
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+    
+    // Base and Top
+    color = Color::black;
+    parallelepipedSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+    parallelepipedSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
 
+    // Column
+    start = Renderer::currentVertex;
+    for (int i = 0; i < 4; i++) {
+        parallelepipedSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
+    }
+    
+    // Put object in position, and in a random scale and rotation
+    parallelepipedSlot.transform.setPosition(Vector3(0.0f, 0.0f, 0.5f));
+
+    randScale = 0.5f + (float)std::rand() / RAND_MAX;
+    parallelepipedSlot.transform.setScale(Vector3(randScale, randScale, randScale));
+
+    randRotation.x = std::rand() % 360;
+    randRotation.y = std::rand() % 360;
+    randRotation.z = std::rand() % 360;
+    parallelepipedSlot.transform.setRotation(randRotation);
+    
     //** Pyramid
     objVertices = Shapes::createPyramid(0.4f, 0.2f);
     vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
@@ -193,6 +245,30 @@ int main() {
 
     objects.push_back(&pyramid);
 
+    //** Pyramid Slot
+    objVertices = Shapes::createPyramid(0.4f, 0.2f);
+    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
+
+    // Base square
+    color = Color::black;
+    pyramidSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
+
+    // Triangular faces
+    for (int i = 0; i < 4; i++) {
+        pyramidSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, 3, color));
+    }
+
+    // Put object in position, and in a random scale and rotation
+    pyramidSlot.transform.setPosition(Vector3(-0.6f, -0.6f, 0.5f));
+
+    randScale = 0.5f + (float)std::rand() / RAND_MAX;
+    pyramidSlot.transform.setScale(Vector3(randScale, randScale, randScale));
+
+    randRotation.x = std::rand() % 360;
+    randRotation.y = std::rand() % 360;
+    randRotation.z = std::rand() % 360;
+    pyramidSlot.transform.setRotation(randRotation);
+    
     //** Star
     objVertices = Shapes::createStarPrism(0.2f, 0.4f, 0.3f);
     vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
