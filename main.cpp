@@ -27,6 +27,17 @@
 #include <time.h>
 
 bool pressedSpace = false;
+bool polygonMode = false;
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
+float width = 600;
+float height = 600;
+
+float yaw = -90.0;         
+float pitch = 0.0;
+float lastX = width / 2;
+float lastY = height / 2;
 
 // Parses file to string. Used to read shader files.
 char* fileToString(std::string fileName) {
@@ -42,11 +53,37 @@ char* fileToString(std::string fileName) {
 }
 
 // Keyboard input callback
-void onKey(GLFWwindow* window, int key, int scanCode, int action, int mods)
-{
+void onKey(GLFWwindow* window, int key, int scanCode, int action, int mods) {
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         pressedSpace = true;
     }
+    if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+        polygonMode = !polygonMode;
+    }
+}
+
+void UpdateCursorPosition(GLFWwindow* window, Camera* camera){
+    double xpos, ypos;
+    glfwGetCursorPos(window,&xpos,&ypos);
+    glfwSetCursorPos(window, 500.0, 500.0); 
+    
+    float xoffset = xpos - 500;
+    float yoffset = 500 - ypos; 
+
+    xoffset *= camera->sensitivity * deltaTime;
+    yoffset *= camera->sensitivity * deltaTime;
+
+    yaw += xoffset;
+    pitch += yoffset;
+    
+    if (pitch >= 89.9) pitch = 89.9;    //Define limites para o angulo da camera em Y
+    if (pitch <= -89.9) pitch = -89.9;
+
+    glm::vec3 forward;
+    forward.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    forward.y = sin(glm::radians(pitch));
+    forward.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    camera->forward = glm::normalize(forward);
 }
 
 
@@ -58,7 +95,7 @@ int main() {
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
  
     // Creating window
-    GLFWwindow* window = glfwCreateWindow(600, 600, "T1", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(width, height, "T1", NULL, NULL);
 
     // Setting windows as our main window
     glfwMakeContextCurrent(window);
@@ -528,9 +565,6 @@ int main() {
     // Enabling depth for 3D
     glEnable(GL_DEPTH_TEST);
 
-    // Enables polygon mode 
-    // glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-
     // Set key callback
     glfwSetKeyCallback(window, onKey); 
 
@@ -548,18 +582,28 @@ int main() {
     float rotationSpeed = 5.0f;
     float scaleSpeed = 0.01f;
 
-    Camera camera(program, Vector3(100, 100, 100));
+    Camera camera(program, Vector3(-2, -2, -2), Vector3(2, 2, 2));
     Vector3 cameraPosition;
     
     // Loop that will run while the screen is being displayed
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
-        cameraPosition = camera.getPosition();
+        if (polygonMode) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        } else {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  
+        }
 
         color = Color::lightGray;
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(color.r, color.g, color.b, color.a);
+
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame; 
+
+        cameraPosition = camera.getPosition();
 
         // Changes selected object
         if (pressedSpace) {
@@ -574,11 +618,13 @@ int main() {
         }
 
         // Translation input
-        movement = Vector3(Input::getAxis(window, "HorizontalArrows"), Input::getAxis(window, "VerticalArrows"), 0.0f);
-        if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
-            movement.z -= moveSpeed;
-        if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
-            movement.z += moveSpeed;
+        movement = Vector3(Input::getAxis(window, "HorizontalWASD"), 0.0f, -Input::getAxis(window, "VerticalWASD"));
+        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+            movement.y -= camera.speed;
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+            movement.y += camera.speed;
+
+        UpdateCursorPosition(window, &camera);
 
         // // Rotation input
         // rotationToBeAdded = Vector3(Input::getAxis(window, "VerticalWASD") * rotationSpeed, -Input::getAxis(window, "HorizontalWASD") * rotationSpeed, 0.0f);
@@ -609,7 +655,7 @@ int main() {
             }
         }
 
-        camera.updatePosition(Vector3::moveTowards(camera.getPosition(), camera.getPosition() + movement, moveSpeed));
+        camera.move(movement, deltaTime);
 
         glfwSwapBuffers(window);
     }

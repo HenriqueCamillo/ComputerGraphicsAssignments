@@ -1,8 +1,11 @@
 #include "Camera.hpp"
 
-Camera::Camera(int program, Vector3 limits, float fov, float aspectRatio, float nearClipPlane, float farClipPlane, bool freeCamera, float speed, float sensitivity) : 
-    program(program), limits(limits), fov(fov), aspectRatio(aspectRatio), nearClipPlane(nearClipPlane), farClipPlane(farClipPlane), freeCamera(freeCamera), speed(speed), sensitivity(sensitivity)
-{}
+Camera::Camera(int program, Vector3 inferiorLimit, Vector3 superiorLimit, float fov, float aspectRatio, float nearClipPlane, float farClipPlane, float speed, float sensitivity) : 
+    program(program), inferiorLimit(inferiorLimit), superiorLimit(superiorLimit), fov(fov), aspectRatio(aspectRatio), nearClipPlane(nearClipPlane), farClipPlane(farClipPlane), speed(speed), sensitivity(sensitivity) {
+    forward = glm::vec3(0, 0, 1);
+    up = glm::vec3(0, 1, 0);
+
+}
 
 Camera::~Camera() { }
 
@@ -14,20 +17,36 @@ Vector3 Camera::getPosition() {
     return transform.getPosition();
 }
 
-void Camera::updatePosition(Vector3 position) {
-    // Updates position respecting the limits
-    float x = clamp(position.x, -limits.x, limits.x);
-    float y = clamp(position.y, -limits.y, limits.y);
-    float z = clamp(position.z, -limits.z, limits.z);
+void Camera::move(Vector3 movement, float deltaTime) {
     
-    transform.setPosition(Vector3(x, y, z));
-    std::cout << x << ", " << y << ", " << z << std::endl;
+    glm::vec3 pos = glm::vec3(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z);
+
+
+    if (movement.x != 0) {
+        if (movement.x > 0) {
+            pos += glm::normalize(glm::cross(forward, up)) * speed * deltaTime;  // right
+        } else {
+            pos -= glm::normalize(glm::cross(forward, up)) * speed * deltaTime;  // left
+        }
+    }
+    if (movement.y != 0) {
+        if (movement.y > 0) {
+            pos += up * speed * deltaTime;  // up
+        } else {
+            pos -= up * speed * deltaTime;  // down
+        }
+    }
+    if (movement.z != 0) {
+        if (movement.z > 0) {
+            pos -= speed * forward * deltaTime; // back
+        } else {
+            pos += speed * forward * deltaTime; // forward
+        }
+    }
+    pos = glm::vec3(clamp(pos.x, inferiorLimit.x, superiorLimit.x), clamp(pos.y, inferiorLimit.y, superiorLimit.y), clamp(pos.z, inferiorLimit.z, superiorLimit.z));
+    transform.setPosition(Vector3(pos.x, pos.y, pos.z));
 
     // Calculates the view and projection matrices
-    glm::vec3 pos(x, y, z);
-    glm::vec3 forward(Vector3::forward.x, Vector3::forward.y, Vector3::forward.z);
-    glm::vec3 up(Vector3::up.x, Vector3::up.y, Vector3::up.z);
-
     glm::mat4 view = glm::lookAt(pos, pos + forward, up);
     glm::mat4 projection = glm::perspective(glm::radians(fov), aspectRatio, nearClipPlane, farClipPlane);
 
