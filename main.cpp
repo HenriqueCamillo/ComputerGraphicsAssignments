@@ -1,5 +1,7 @@
-/* Nome: Henrique Matarazo Camillo
- * Nº USP: 10294943
+/* Grupo: 
+ * Gyovana Mayara Moriyama - 10734387
+ * Henrique Matarazo Camillo - 10294943
+ * João Pedro Uchôa Cavalcante - 10801169
  * */
 
 #include "Color.hpp"
@@ -10,6 +12,7 @@
 #include "Input.hpp"
 #include "GameObject.hpp"
 #include "RenderingInstructions.hpp"
+#include "Camera.hpp"
 
 #include <GL/glew.h>  
 #define GLFW_INCLUDE_NONE
@@ -544,10 +547,15 @@ int main() {
     float moveSpeed = 0.01f;
     float rotationSpeed = 5.0f;
     float scaleSpeed = 0.01f;
+
+    Camera camera(program, Vector3(100, 100, 100));
+    Vector3 cameraPosition;
     
     // Loop that will run while the screen is being displayed
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
+
+        cameraPosition = camera.getPosition();
 
         color = Color::lightGray;
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -572,28 +580,26 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
             movement.z += moveSpeed;
 
-        objects[currentSelected]->transform.setPosition(Vector3::moveTowards(objects[currentSelected]->transform.getPosition(), objects[currentSelected]->transform.getPosition() + movement, moveSpeed));
+        // // Rotation input
+        // rotationToBeAdded = Vector3(Input::getAxis(window, "VerticalWASD") * rotationSpeed, -Input::getAxis(window, "HorizontalWASD") * rotationSpeed, 0.0f);
+        // if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        //     rotation.z -= rotationSpeed;
+        // if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        //     rotation.z += rotationSpeed;
+        // rotation += rotationToBeAdded;
 
-        // Rotation input
-        rotationToBeAdded = Vector3(Input::getAxis(window, "VerticalWASD") * rotationSpeed, -Input::getAxis(window, "HorizontalWASD") * rotationSpeed, 0.0f);
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-            rotation.z -= rotationSpeed;
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-            rotation.z += rotationSpeed;
-        rotation += rotationToBeAdded;
-
-        objects[currentSelected]->transform.setRotation(rotation);
+        // objects[currentSelected]->transform.setRotation(rotation);
 
         // Scale input
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
-            scale += Vector3(scaleSpeed, scaleSpeed, scaleSpeed);
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-            scale -= Vector3(scaleSpeed, scaleSpeed, scaleSpeed);
+        // if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
+        //     scale += Vector3(scaleSpeed, scaleSpeed, scaleSpeed);
+        // if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        //     scale -= Vector3(scaleSpeed, scaleSpeed, scaleSpeed);
 
-        objects[currentSelected]->transform.setScale(scale);
+        // objects[currentSelected]->transform.setScale(scale);
 
         // Get transformation matrix location in GPU
-        locPosition = glGetUniformLocation(program, "transformationMatrix");
+        locPosition = glGetUniformLocation(program, "model");
 
         // Send transformation matrix for each enabled GameObject and draws it
         for (auto it = GameObject::getAll()->begin(); it != GameObject::getAll()->end(); it++) {
@@ -602,6 +608,8 @@ int main() {
                 (*it)->renderer.draw(locColor);
             }
         }
+
+        camera.updatePosition(Vector3::moveTowards(camera.getPosition(), camera.getPosition() + movement, moveSpeed));
 
         glfwSwapBuffers(window);
     }

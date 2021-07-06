@@ -10,5 +10,5 @@ run:
 clean:
 	rm ./main
 
-zip: clean
-	zip Ex.zip *cpp *.hpp *.vert *.frag Makefile *.md
+zip: 
+	zip Ex.zip *cpp *.hpp *.vert *.frag Makefile *.md -r shaders
