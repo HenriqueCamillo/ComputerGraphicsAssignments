@@ -62,7 +62,7 @@ void onKey(GLFWwindow* window, int key, int scanCode, int action, int mods) {
     }
 }
 
-void UpdateCursorPosition(GLFWwindow* window, Camera* camera){
+void updateCursorPosition(GLFWwindow* window, Camera* camera){
     double xpos, ypos;
     glfwGetCursorPos(window,&xpos,&ypos);
     glfwSetCursorPos(window, 500.0, 500.0); 
@@ -85,7 +85,6 @@ void UpdateCursorPosition(GLFWwindow* window, Camera* camera){
     forward.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     camera->forward = glm::normalize(forward);
 }
-
 
 int main() {
     // Initializing window system
@@ -624,7 +623,7 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
             movement.y += camera.speed;
 
-        UpdateCursorPosition(window, &camera);
+        updateCursorPosition(window, &camera);
 
         // // Rotation input
         // rotationToBeAdded = Vector3(Input::getAxis(window, "VerticalWASD") * rotationSpeed, -Input::getAxis(window, "HorizontalWASD") * rotationSpeed, 0.0f);

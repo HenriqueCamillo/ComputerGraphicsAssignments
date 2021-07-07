@@ -3,6 +3,7 @@
 std::set<GameObject*> GameObject::all;
 
 GameObject::GameObject() {
+    renderer = Renderer(&transform);
     all.insert(this);
 }
 
