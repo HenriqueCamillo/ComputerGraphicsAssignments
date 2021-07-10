@@ -26,8 +26,11 @@
 #include <string.h>
 #include <time.h>
 
+Camera* mainCamera;
+
 bool pressedSpace = false;
 bool polygonMode = false;
+
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
@@ -59,6 +62,30 @@ void onKey(GLFWwindow* window, int key, int scanCode, int action, int mods) {
     }
     if (key == GLFW_KEY_P && action == GLFW_PRESS) {
         polygonMode = !polygonMode;
+    }
+    if (key == GLFW_KEY_M && action == GLFW_PRESS && mainCamera->fov < 140) {
+        mainCamera->fov += 10;
+    }
+    if (key == GLFW_KEY_N && action == GLFW_PRESS && mainCamera->fov > 20) {
+        mainCamera->fov -= 10;
+    }
+    if (key == GLFW_KEY_K && action == GLFW_PRESS && mainCamera->nearClipPlane < 5) {
+        mainCamera->nearClipPlane += 1;
+    }
+    if (key == GLFW_KEY_J && action == GLFW_PRESS && mainCamera->nearClipPlane > 1) {
+        mainCamera->nearClipPlane -= 1;
+    }
+    if (key == GLFW_KEY_I && action == GLFW_PRESS && mainCamera->farClipPlane < 500) {
+        mainCamera->farClipPlane += 10;
+    }
+    if (key == GLFW_KEY_U && action == GLFW_PRESS && mainCamera->farClipPlane > 60) {
+        mainCamera->farClipPlane -= 10;
+    }
+    if (key == GLFW_KEY_H && action == GLFW_PRESS) {
+        mainCamera->aspectRatio += 0.1f;
+    }
+    if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+        mainCamera->aspectRatio -= 0.1f;
     }
 }
 
@@ -209,6 +236,7 @@ int main() {
     glfwSetKeyCallback(window, onKey); 
 
     Camera camera(program, Vector3(-500, -500, -500), Vector3(500, 500, 500));
+    mainCamera = &camera;
     Vector3 cameraPosition, movement;
     
     Color color;
