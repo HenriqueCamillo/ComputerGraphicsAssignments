@@ -39,6 +39,7 @@ float height = 600;
 
 float yaw = -90.0;         
 float pitch = 0.0;
+
 float lastX = width / 2;
 float lastY = height / 2;
 
@@ -75,7 +76,7 @@ void onKey(GLFWwindow* window, int key, int scanCode, int action, int mods) {
     if (key == GLFW_KEY_J && action == GLFW_PRESS && mainCamera->nearClipPlane > 1) {
         mainCamera->nearClipPlane -= 1;
     }
-    if (key == GLFW_KEY_I && action == GLFW_PRESS && mainCamera->farClipPlane < 500) {
+    if (key == GLFW_KEY_I && action == GLFW_PRESS && mainCamera->farClipPlane < 1000) {
         mainCamera->farClipPlane += 10;
     }
     if (key == GLFW_KEY_U && action == GLFW_PRESS && mainCamera->farClipPlane > 60) {
@@ -92,10 +93,10 @@ void onKey(GLFWwindow* window, int key, int scanCode, int action, int mods) {
 void updateCursorPosition(GLFWwindow* window, Camera* camera){
     double xpos, ypos;
     glfwGetCursorPos(window,&xpos,&ypos);
-    glfwSetCursorPos(window, 500.0, 500.0); 
+    glfwSetCursorPos(window, height / 2, width / 2); 
     
-    float xoffset = xpos - 500;
-    float yoffset = 500 - ypos; 
+    float xoffset = xpos - width / 2;
+    float yoffset = height / 2 - ypos; 
 
     xoffset *= camera->sensitivity * deltaTime;
     yoffset *= camera->sensitivity * deltaTime;
@@ -235,9 +236,12 @@ int main() {
     // Set key callback
     glfwSetKeyCallback(window, onKey); 
 
-    Camera camera(program, Vector3(-500, -500, -500), Vector3(500, 500, 500));
+    Camera camera(program, Vector3(-500, -500, -500), Vector3(500, 500, 500), Vector3(0, 35, 0));
     mainCamera = &camera;
+    
     Vector3 cameraPosition, movement;
+
+    float rotation = 0, rotationSpeed = 10;
     
     Color color;
 
@@ -271,6 +275,13 @@ int main() {
         updateCursorPosition(window, &camera);
         camera.move(movement, deltaTime);
 
+        // Animation
+        rotation = (rotation + rotationSpeed * deltaTime);
+        if (rotation > 360) {
+            rotation -= 360;
+        }
+
+        hut.transform.setRotation(Vector3(0, rotation, 0));
 
         hut.renderer.drawObject();
 
