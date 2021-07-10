@@ -124,11 +124,11 @@ int main() {
     GLint isCompiled = 0;
     glGetShaderiv(vertex, GL_COMPILE_STATUS, &isCompiled);
     if (isCompiled == GL_FALSE) {
-        //descobrindo o tamanho do log de erro
+        // Getting error log size
         int infoLength = 512;
         glGetShaderiv(vertex, GL_INFO_LOG_LENGTH, &infoLength);
 
-        //recuperando o log de erro e imprimindo na tela
+        // Getting error log and printing
         char info[infoLength];
         glGetShaderInfoLog(vertex, infoLength, NULL, info);
 
@@ -163,400 +163,41 @@ int main() {
     glUseProgram(program);
 
     // Vertices that wil be sent to GPU
-    std::vector<Vector3> vertices;
-    std::vector<Vector3> objVertices;   // auxiliary     variable
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec2> uvs;
+    std::vector<glm::vec3> normals;
+    std::vector<TextureInfo> textures; 
+
+    GameObject hut;
+    textures.push_back({"./objects/cabana/WoodCabinDif.jpg", GL_RGB});
+    textures.push_back({"./objects/cabana/WoodCabinDif.jpg",GL_RGB});
+    hut.renderer.loadObject(program, "./objects/cabana/cabana.obj", textures, vertices, normals, uvs);
+    textures.clear();
+
+    //Criacao do modelo da malha do terreno externo de areia com sua respectiva textura
+    // textures.push_back({"terreno/areia.jpg", GL_RGB});
+    // mesh terreno1(program, "terreno/terreno.obj", textures, v_vertices, v_normals, v_uvs);
+    // textures.clear();
 
-    // List of selectable objects
-    std::vector<GameObject*> objects;
-    GameObject pyramid, cylinder, star, arrow, key;
-    GameObject pyramidSlot, cylinderSlot, starSlot, arrowSlot, keySlot;
-
-    Color color;
-    int start;
-    
-    float randScale;
-    Vector3 randRotation;
-    std::srand((unsigned)time(NULL));
-
-// ================================================================================================ //
-
-    //** Cylinder    
-    objVertices = Shapes::createCylinder(0.2f, 0.3f);
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    color = Color::green;
-    cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
-    cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
-
-    // Column
-    start = Renderer::currentVertex;
-    for (int i = 0; i < 64; i++) {
-        color = i % 2 == 0 ? Color::green : Color::lime;
-        cylinder.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    objects.push_back(&cylinder);
-
-// ================================================================================================ //
-
-    //** Cylinder Slot
-    objVertices = Shapes::createCylinder(0.2f, 0.3f);
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    color = Color::black;
-    cylinderSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
-    cylinderSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
-
-    // Column
-    start = Renderer::currentVertex;
-    for (int i = 0; i < 64; i++) {
-        cylinderSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    // Put object in position, and in a random scale and rotation
-    cylinderSlot.transform.setPosition(Vector3(-0.6f, 0.6f, 0.5f));
-
-    randScale = 0.5f + (float)std::rand() / RAND_MAX;
-    cylinderSlot.transform.setScale(Vector3(randScale, randScale, randScale));
-
-    randRotation = Vector3(std::rand() % 360, std::rand() % 360, std::rand() % 360);
-    cylinderSlot.transform.setRotation(randRotation);
-
-// ================================================================================================ //
-
-    //** Arrow    
-    //* Cylinder    
-    objVertices = Shapes::createCylinder(0.05f, 0.5f, 16, Vector3(0.0f, 0.0f, -0.125f));
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    color = Color::orange;
-    arrow.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 16, color));
-    arrow.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 16, color));
-
-    // Column
-    start = Renderer::currentVertex;
-    for (int i = 0; i < 16; i++) {
-        color = i % 2 == 0 ? Color::red : Color::orange;
-        arrow.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    //* Pyramid
-    objVertices = Shapes::createPyramid(0.2f, 0.1f, Vector3(0.0f, 0.0f, 0.125f));
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base square
-    color = Color::brown;
-    arrow.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-
-    // Triangular faces
-    for (int i = 0; i < 4; i++) {
-        color = i % 2 == 0 ? Color::red : Color::orange;
-        arrow.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, 3, color));
-    }
-
-    objects.push_back(&arrow);
- 
-// ================================================================================================ //
-    
-    //** Arrow Slot
-    //* Cylinder    
-    objVertices = Shapes::createCylinder(0.05f, 0.5f, 16, Vector3(0.0f, 0.0f, -0.125f));
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    color = Color::black;
-    arrowSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 16, color));
-    arrowSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 16, color));
-
-    // Column
-    start = Renderer::currentVertex;
-    for (int i = 0; i < 16; i++) {
-        arrowSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    //* Pyramid
-    objVertices = Shapes::createPyramid(0.2f, 0.1f, Vector3(0.0f, 0.0f, 0.125f));
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base square
-    arrowSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-
-    // Triangular faces
-    for (int i = 0; i < 4; i++) {
-        arrowSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, 3, color));
-    }
-
-    // Put object in position, and in a random scale and rotation
-    arrowSlot.transform.setPosition(Vector3(0.0f, 0.0f, 0.5f));
-
-    randScale = 0.5f + (float)std::rand() / RAND_MAX;
-    arrowSlot.transform.setScale(Vector3(randScale, randScale, randScale));
-
-    randRotation = Vector3(std::rand() % 360, std::rand() % 360, std::rand() % 360);
-    arrowSlot.transform.setRotation(randRotation);
-
-// ================================================================================================ //
-    
-    //** Pyramid
-    objVertices = Shapes::createPyramid(0.4f, 0.2f);
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base square
-    color = Color::yellow;
-    pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-
-    // Triangular faces
-    for (int i = 0; i < 4; i++) {
-        color = i % 2 == 0 ? Color::orange : Color::red;
-        pyramid.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, 3, color));
-    }
-
-    objects.push_back(&pyramid);
-
-// ================================================================================================ //
-
-    //** Pyramid Slot
-    objVertices = Shapes::createPyramid(0.4f, 0.2f);
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base square
-    color = Color::black;
-    pyramidSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-
-    // Triangular faces
-    for (int i = 0; i < 4; i++) {
-        pyramidSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, 3, color));
-    }
-
-    // Put object in position, and in a random scale and rotation
-    pyramidSlot.transform.setPosition(Vector3(-0.6f, -0.6f, 0.5f));
-
-    randScale = 0.5f + (float)std::rand() / RAND_MAX;
-    pyramidSlot.transform.setScale(Vector3(randScale, randScale, randScale));
-
-    randRotation = Vector3(std::rand() % 360, std::rand() % 360, std::rand() % 360);
-    pyramidSlot.transform.setRotation(randRotation);
-
-// ================================================================================================ //
-    
-    //** Star
-    objVertices = Shapes::createStarPrism(0.2f, 0.4f, 0.3f);
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    color = Color::purple;    
-    for (int i = 0; i < 2; i++) {
-        // Star sharp edges
-        start = Renderer::currentVertex;
-        for (int i = 0; i < 10; i += 2) {
-            star.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, start + i, 3, color));
-        }
-
-        // Center
-        star.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 5, color));
-    }
-
-    // Column
-    start = Renderer::currentVertex;
-    color = Color::blue;
-    for (int i = 0; i < 11; i++) {
-        star.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    objects.push_back(&star);
-
-// ================================================================================================ //
-
-    //** Star Slot
-    objVertices = Shapes::createStarPrism(0.2f, 0.4f, 0.3f);
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    color = Color::black;    
-    for (int i = 0; i < 2; i++) {
-        // Star sharp edges
-        start = Renderer::currentVertex;
-        for (int i = 0; i < 10; i += 2) {
-            starSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLES, start + i, 3, color));
-        }
-
-        // Center
-        starSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 5, color));
-    }
-
-    // Column
-    start = Renderer::currentVertex;
-    for (int i = 0; i < 11; i++) {
-        starSlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    // Put object in position, and in a random scale and rotation
-    starSlot.transform.setPosition(Vector3(0.6f, 0.6f, 0.5f));
-
-    randScale = 0.5f + (float)std::rand() / RAND_MAX;
-    starSlot.transform.setScale(Vector3(randScale, randScale, randScale));
-
-    randRotation = Vector3(std::rand() % 360, std::rand() % 360, std::rand() % 360);
-    starSlot.transform.setRotation(randRotation);
-
-// ================================================================================================ //
-
-    //** Key
-    //* Cilinder
-    objVertices = Shapes::createCylinder(0.2f, 0.2f);
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    color = Color::yellow;
-    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
-    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
-
-    // Column
-    start = Renderer::currentVertex;
-    color = Color::brown;
-    for (int i = 0; i < 64; i++) {
-        key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    //* Horizontal Long Parallelepiped
-    objVertices = Shapes::createParallelepiped(0.4f, 0.1f, 0.2f, Vector3(0.3f, 0.0f, 0.0f));
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    color = Color::yellow;
-    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-
-    // Column
-    start = Renderer::currentVertex;
-    color = Color::brown;
-    for (int i = 0; i < 4; i++) {
-        key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    //* Vertical Parallelepiped 1
-    objVertices = Shapes::createParallelepiped(0.05f, 0.1f, 0.2f, Vector3(0.3f, -0.1f, 0.0f));
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    color = Color::yellow;
-    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-
-    // Column
-    start = Renderer::currentVertex;
-    color = Color::brown;
-    for (int i = 0; i < 4; i++) {
-        key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    //* Vertical Parallelepiped 2
-    objVertices = Shapes::createParallelepiped(0.05f, 0.1f, 0.2f, Vector3(0.45f, -0.1f, 0.0f));
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    color = Color::yellow;
-    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-    key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-
-    // Column
-    start = Renderer::currentVertex;
-    color = Color::brown;
-    for (int i = 0; i < 4; i++) {
-        key.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    objects.push_back(&key);
-
-// ================================================================================================ //
-
-    //** Key Slot
-    //* Cilinder
-    objVertices = Shapes::createCylinder(0.2f, 0.2f);
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    color = Color::black;
-    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
-    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_FAN, 64, color));
-
-    // Column
-    start = Renderer::currentVertex;
-    for (int i = 0; i < 64; i++) {
-        keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    //* Horizontal Long Parallelepiped
-    objVertices = Shapes::createParallelepiped(0.4f, 0.1f, 0.2f, Vector3(0.3f, 0.0f, 0.0f));
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-
-    // Column
-    start = Renderer::currentVertex;
-    for (int i = 0; i < 4; i++) {
-        keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    //* Vertical Parallelepiped 1
-    objVertices = Shapes::createParallelepiped(0.05f, 0.1f, 0.2f, Vector3(0.3f, -0.1f, 0.0f));
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-
-    // Column
-    start = Renderer::currentVertex;
-    for (int i = 0; i < 4; i++) {
-        keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    //* Vertical Parallelepiped 2
-    objVertices = Shapes::createParallelepiped(0.05f, 0.1f, 0.2f, Vector3(0.45f, -0.1f, 0.0f));
-    vertices.insert(vertices.end(), objVertices.begin(), objVertices.end());
-
-    // Base and Top
-    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-    keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, 4, color));
-
-    // Column
-    start = Renderer::currentVertex;
-    for (int i = 0; i < 4; i++) {
-        keySlot.renderer.addRenderingInstruction(RenderingInstructions(GL_TRIANGLE_STRIP, start + i * 2, 4, color));
-    }
-
-    // Put object in position, and in a random scale and rotation
-    keySlot.transform.setPosition(Vector3(0.6f, -0.6f, 0.5f));
-
-    randScale = 0.5f + (float)std::rand() / RAND_MAX;
-    keySlot.transform.setScale(Vector3(randScale, randScale, randScale));
-
-    randRotation = Vector3(std::rand() % 360, std::rand() % 360, std::rand() % 360);
-    keySlot.transform.setRotation(randRotation);
-
-// ================================================================================================ //
 
     // Creating buffer with vertices
-    GLuint buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    GLuint buffer[2];
+    glGenBuffers(1, buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[0]);
 
     // Sending buffer
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vector3), vertices.data(), GL_STATIC_DRAW);
-
-    // Associating GLSL variables
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_STATIC_DRAW);
     GLint locPosition = glGetAttribLocation(program, "position");
     glEnableVertexAttribArray(locPosition);
-    glVertexAttribPointer(locPosition, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void*) 0); // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glVertexAttribPointer.xhtml
+    glVertexAttribPointer(locPosition, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*) 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[1]);
+    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), uvs.data(), GL_STATIC_DRAW);
+    GLint locTextureCoord = glGetAttribLocation(program, "texture_coord");
+    glEnableVertexAttribArray(locTextureCoord);
+    glVertexAttribPointer(locTextureCoord, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*) 0);
  
     GLint locColor = glGetUniformLocation(program, "color");
-
 
     // Displaying window
     glfwShowWindow(window);
@@ -567,24 +208,12 @@ int main() {
     // Set key callback
     glfwSetKeyCallback(window, onKey); 
 
-    // Selects the first object
-    int currentSelected = 0;
-
-    // Resets the variables according to the selected object
-    Vector3 movement;
-    Vector3 rotationToBeAdded;
-    Vector3 rotation = objects[currentSelected]->transform.getRotation();
-    Vector3 scale = objects[currentSelected]->transform.getScale();
-
-    // Defines speeds
-    float moveSpeed = 0.01f;
-    float rotationSpeed = 5.0f;
-    float scaleSpeed = 0.01f;
-
-    Camera camera(program, Vector3(-2, -2, -2), Vector3(2, 2, 2));
-    Vector3 cameraPosition;
+    Camera camera(program, Vector3(-500, -500, -500), Vector3(500, 500, 500));
+    Vector3 cameraPosition, movement;
     
-    // Loop that will run while the screen is being displayed
+    Color color;
+
+    //Loop that will run while the screen is being displayed
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
@@ -604,18 +233,6 @@ int main() {
 
         cameraPosition = camera.getPosition();
 
-        // Changes selected object
-        if (pressedSpace) {
-            if (++currentSelected >= objects.size()) {
-                currentSelected = 0;
-            }
-            
-            pressedSpace = false;
-
-            rotation = objects[currentSelected]->transform.getRotation();
-            scale = objects[currentSelected]->transform.getScale();
-        }
-
         // Translation input
         movement = Vector3(Input::getAxis(window, "HorizontalWASD"), 0.0f, -Input::getAxis(window, "VerticalWASD"));
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
@@ -624,37 +241,10 @@ int main() {
             movement.y += camera.speed;
 
         updateCursorPosition(window, &camera);
-
-        // // Rotation input
-        // rotationToBeAdded = Vector3(Input::getAxis(window, "VerticalWASD") * rotationSpeed, -Input::getAxis(window, "HorizontalWASD") * rotationSpeed, 0.0f);
-        // if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-        //     rotation.z -= rotationSpeed;
-        // if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-        //     rotation.z += rotationSpeed;
-        // rotation += rotationToBeAdded;
-
-        // objects[currentSelected]->transform.setRotation(rotation);
-
-        // Scale input
-        // if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
-        //     scale += Vector3(scaleSpeed, scaleSpeed, scaleSpeed);
-        // if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-        //     scale -= Vector3(scaleSpeed, scaleSpeed, scaleSpeed);
-
-        // objects[currentSelected]->transform.setScale(scale);
-
-        // Get transformation matrix location in GPU
-        locPosition = glGetUniformLocation(program, "model");
-
-        // Send transformation matrix for each enabled GameObject and draws it
-        for (auto it = GameObject::getAll()->begin(); it != GameObject::getAll()->end(); it++) {
-            if ((*it)->renderer.enabled) {
-                glUniformMatrix4fv(locPosition, 1, GL_TRUE, (*it)->transform.getTransformationMatrix().data());
-                (*it)->renderer.draw(locColor);
-            }
-        }
-
         camera.move(movement, deltaTime);
+
+
+        hut.renderer.drawObject();
 
         glfwSwapBuffers(window);
     }

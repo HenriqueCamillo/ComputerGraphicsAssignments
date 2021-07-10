@@ -21,7 +21,6 @@ void Camera::move(Vector3 movement, float deltaTime) {
     
     glm::vec3 pos = glm::vec3(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z);
 
-
     if (movement.x != 0) {
         if (movement.x > 0) {
             pos += glm::normalize(glm::cross(forward, up)) * speed * deltaTime;  // right
@@ -45,6 +44,7 @@ void Camera::move(Vector3 movement, float deltaTime) {
     }
     pos = glm::vec3(clamp(pos.x, inferiorLimit.x, superiorLimit.x), clamp(pos.y, inferiorLimit.y, superiorLimit.y), clamp(pos.z, inferiorLimit.z, superiorLimit.z));
     transform.setPosition(Vector3(pos.x, pos.y, pos.z));
+    std::cout << transform.getPosition().toString() << std::endl;
 
     // Calculates the view and projection matrices
     glm::mat4 view = glm::lookAt(pos, pos + forward, up);

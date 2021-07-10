@@ -15,16 +15,14 @@
 #include <glm/gtx/string_cast.hpp>
 
 typedef struct{
-    std::string texturePath;       //Caminho diretorio de arquivos
-    GLenum format;                  //Formato: RGB ou RGBA
+    std::string texturePath;
+    GLenum format;
 } TextureInfo;
-
 
 // Class responsible for drawing the objects on screen
 class Renderer {
 private:    
     std::vector<RenderingInstructions> renderingInstructions;
-    bool loadObject(const char* path, std::vector<glm::vec3>& vertices, std::vector<glm::vec2>& uvs, std::vector<glm::vec3>& normals, std::vector<int>& texture_groups);
     Transform* transform; 
     int firstVertex;
     int nVertices;

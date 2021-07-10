@@ -32,7 +32,7 @@ public:
     Vector3 getPosition();
     void move(Vector3 movement, float deltaTime);
 
-    Camera(int program, Vector3 inferiorLimit = Vector3(-5, -5, -5), Vector3 superiorLimit = Vector3((5, 5, 5)), float fov = 45.0f, float aspectRatio = 1.0f, float nearClipPlane = 0.1f, float farClipPlane = 100.0f, float speed = 0.5f, float sensitivity = 2.5f);
+    Camera(int program, Vector3 inferiorLimit = Vector3(-5, -5, -5), Vector3 superiorLimit = Vector3((5, 5, 5)), float fov = 45.0f, float aspectRatio = 1.0f, float nearClipPlane = 0.1f, float farClipPlane = 100.0f, float speed = 50.0f, float sensitivity = 2.5f);
     ~Camera();
 };
 
