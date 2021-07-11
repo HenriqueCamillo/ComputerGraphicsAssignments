@@ -196,16 +196,63 @@ int main() {
     std::vector<glm::vec3> normals;
     std::vector<TextureInfo> textures; 
 
-    GameObject hut;
-    textures.push_back({"./objects/cabana/WoodCabinDif.jpg", GL_RGB});
-    textures.push_back({"./objects/cabana/WoodCabinDif.jpg",GL_RGB});
-    hut.renderer.loadObject(program, "./objects/cabana/cabana.obj", textures, vertices, normals, uvs);
+    GameObject cabin;
+    for (int i = 0; i < 2; i++) {
+        textures.push_back({"./objects/cabin/cabin.jpg", GL_RGB});
+    }
+    cabin.renderer.loadObject(program, "./objects/cabin/cabin.obj", textures, vertices, normals, uvs);
     textures.clear();
 
-    //Criacao do modelo da malha do terreno externo de areia com sua respectiva textura
-    // textures.push_back({"terreno/areia.jpg", GL_RGB});
-    // mesh terreno1(program, "terreno/terreno.obj", textures, v_vertices, v_normals, v_uvs);
-    // textures.clear();
+    GameObject ciruclarGrass;
+    textures.push_back({"./objects/circularGrass/circularGrass.jpg", GL_RGB});
+    ciruclarGrass.renderer.loadObject(program, "./objects/circularGrass/circularGrass.obj", textures, vertices, normals, uvs);
+    textures.clear();
+
+    GameObject rectangularGrass;
+    textures.push_back({"./objects/rectangularGrass/rectangularGrass.jpg", GL_RGB});
+    rectangularGrass.renderer.loadObject(program, "./objects/rectangularGrass/rectangularGrass.obj", textures, vertices, normals, uvs);
+    textures.clear();
+
+    GameObject cat;
+    textures.push_back({"./objects/cat/cat.jpg", GL_RGB});
+    cat.renderer.loadObject(program, "./objects/cat/cat.obj", textures, vertices, normals, uvs);
+    textures.clear();
+
+    GameObject bike;
+    for (int i = 0; i < 29; i++) {
+        textures.push_back({"./objects/bike/bike.jpg", GL_RGB});
+    }
+    bike.renderer.loadObject(program, "./objects/bike/bike.obj", textures, vertices, normals, uvs);
+    textures.clear();
+
+    GameObject chair;
+    textures.push_back({"./objects/chair/chair1.jpg", GL_RGB});
+    textures.push_back({"./objects/chair/chair2.jpg", GL_RGB});
+    textures.push_back({"./objects/chair/chair2.jpg", GL_RGB});
+    textures.push_back({"./objects/chair/chair1.jpg", GL_RGB});
+    chair.renderer.loadObject(program, "./objects/chair/chair.obj", textures, vertices, normals, uvs);
+    textures.clear();
+
+    GameObject book;
+    for (int i = 0; i < 4; i++) {
+        textures.push_back({"./objects/book/book.jpg", GL_RGB});
+    }
+    book.renderer.loadObject(program, "./objects/book/book.obj", textures, vertices, normals, uvs);
+    textures.clear();
+
+    GameObject plant;
+    for (int i = 0; i < 7; i++) {
+        textures.push_back({"./objects/plant/plant.jpg", GL_RGB});
+    }
+    plant.renderer.loadObject(program, "./objects/plant/plant.obj", textures, vertices, normals, uvs);
+    textures.clear();
+
+    GameObject duck;
+    for (int i = 0; i < 3; i++) {
+        textures.push_back({"./objects/duck/duck.jpg", GL_RGB});
+    }
+    duck.renderer.loadObject(program, "./objects/duck/duck.obj", textures, vertices, normals, uvs);
+    textures.clear();
 
 
     // Creating buffer with vertices
@@ -276,14 +323,18 @@ int main() {
         camera.move(movement, deltaTime);
 
         // Animation
-        rotation = (rotation + rotationSpeed * deltaTime);
-        if (rotation > 360) {
-            rotation -= 360;
+        rotation = (rotation - rotationSpeed * deltaTime);
+        if (rotation < -360) {
+            rotation += 360;
         }
 
-        hut.transform.setRotation(Vector3(0, rotation, 0));
+        cat.transform.setRotation(Vector3(0, rotation, 0));
 
-        hut.renderer.drawObject();
+        for (auto it = GameObject::getAll()->begin(); it != GameObject::getAll()->end(); it++) {
+            if ((*it)->renderer.enabled) {
+                (*it)->renderer.drawObject();
+            }
+        }
 
         glfwSwapBuffers(window);
     }
