@@ -283,7 +283,7 @@ int main() {
     // Set key callback
     glfwSetKeyCallback(window, onKey); 
 
-    Camera camera(program, Vector3(-500, -500, -500), Vector3(500, 500, 500), Vector3(0, 35, 0));
+    Camera camera(program, Vector3(-146.014771, 0, -148.044357), Vector3(147.078110, 200, 144.766617), Vector3(0, 35, 0));
     mainCamera = &camera;
     
     Vector3 cameraPosition, movement;
