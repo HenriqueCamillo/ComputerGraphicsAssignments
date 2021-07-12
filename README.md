@@ -8,8 +8,8 @@
 * Compilar: make
 * Executar: make run
 
-## Instruções 
-# Movimentação da câmera
+# Instruções 
+## Movimentação da câmera
 * W - frente
 * S - trás
 * A - esquerda
@@ -17,7 +17,7 @@
 * Q - baixo
 * E - cima
 
-# Mudanças nas configurações de visão
+## Mudanças nas configurações de visão
 * P - alterna entre modos de visualização
 * M - aumenta campo de visão
 * N - diminui campo de visão

@@ -11,4 +11,4 @@ clean:
 	rm ./main
 
 zip: 
-	zip Ex.zip *cpp *.hpp *.vert *.frag Makefile *.md -r shaders
+	zip Ex.zip *cpp *.hpp Makefile *.md shaders objects skybox -r 

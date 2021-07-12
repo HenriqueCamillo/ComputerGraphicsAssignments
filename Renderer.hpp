@@ -5,9 +5,9 @@
 #include <vector>
 
 #include <GL/glew.h>
-#include <GL/gl.h>  /* verifique no seu SO onde fica o gl.h */
+#include <GL/gl.h>  
 #define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h> /* verifique no seu SO onde fica o glfw3.h */
+#include <GLFW/glfw3.h> 
 #include <math.h>
 #include <glm/matrix.hpp>
 #include <glm/gtx/transform.hpp>
