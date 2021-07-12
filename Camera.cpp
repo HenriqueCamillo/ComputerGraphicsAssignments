@@ -44,9 +44,17 @@ void Camera::move(Vector3 movement, float deltaTime) {
     }
     pos = glm::vec3(clamp(pos.x, inferiorLimit.x, superiorLimit.x), clamp(pos.y, inferiorLimit.y, superiorLimit.y), clamp(pos.z, inferiorLimit.z, superiorLimit.z));
     transform.setPosition(Vector3(pos.x, pos.y, pos.z));
+}
+
+
+void Camera::updateViewProjection(int program, bool isSkybox) {
+    glm::vec3 pos = glm::vec3(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z);
 
     // Calculates the view and projection matrices
     glm::mat4 view = glm::lookAt(pos, pos + forward, up);
+    if (isSkybox) {
+        view = glm::mat4(glm::mat3(view));
+    }
     glm::mat4 projection = glm::perspective(glm::radians(fov), aspectRatio, nearClipPlane, farClipPlane);
 
     // Sends the two matrices to GPU

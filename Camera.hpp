@@ -31,6 +31,7 @@ public:
 
     Vector3 getPosition();
     void move(Vector3 movement, float deltaTime);
+    void updateViewProjection(int program, bool isSkybox = false);
 
     Camera(int program, Vector3 inferiorLimit = Vector3(-5, -5, -5), Vector3 superiorLimit = Vector3((5, 5, 5)), Vector3 position = Vector3::up, float fov = 45.0f, float aspectRatio = 1.0f, float nearClipPlane = 1.1f, float farClipPlane = 500.0f, float speed = 50.0f, float sensitivity = 2.5f);
     ~Camera();

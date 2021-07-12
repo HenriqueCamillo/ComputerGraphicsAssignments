@@ -122,7 +122,7 @@ int main() {
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
  
     // Creating window
-    GLFWwindow* window = glfwCreateWindow(width, height, "T1", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(width, height, "T2", NULL, NULL);
 
     // Setting windows as our main window
     glfwMakeContextCurrent(window);
@@ -131,6 +131,8 @@ int main() {
     GLint GlewInitResult = glewInit();
     std::cout << "GlewStatus: " << glewGetErrorString(GlewInitResult) << std::endl;
 
+    glDepthFunc(GL_LEQUAL);
+    
     // GLSL for Vertex Shader
     GLchar* vertexCode = fileToString("shaders/vertex.vert");
     
@@ -189,6 +191,65 @@ int main() {
     // Linking program and setting as default
     glLinkProgram(program);
     glUseProgram(program);
+
+    // GLSL for Vertex Shader
+    GLchar* skyboxVertexCode = fileToString("shaders/skyboxVertex.vert");
+    
+    // GLSL for Fragment Shader
+    GLchar* skyboxFragmentCode = fileToString("shaders/skyboxFragment.frag");
+    
+    // Requesting GPU slot for Vertex and Fragment Shaders
+    GLuint skyboxProgram = glCreateProgram();
+    GLuint skyboxVertex = glCreateShader(GL_VERTEX_SHADER);
+    GLuint skyboxFragment = glCreateShader(GL_FRAGMENT_SHADER);
+
+    // Associating GLSL code to requested slots
+    glShaderSource(skyboxVertex, 1, &skyboxVertexCode, NULL);
+    glShaderSource(skyboxFragment, 1, &skyboxFragmentCode, NULL);
+
+    // Compiling Vertex Shader e checking for errors
+    glCompileShader(skyboxVertex);
+
+    isCompiled = 0;
+    glGetShaderiv(skyboxVertex, GL_COMPILE_STATUS, &isCompiled);
+    if (isCompiled == GL_FALSE) {
+        // Getting error log size
+        int infoLength = 512;
+        glGetShaderiv(skyboxVertex, GL_INFO_LOG_LENGTH, &infoLength);
+
+        // Getting error log and printing
+        char info[infoLength];
+        glGetShaderInfoLog(skyboxVertex, infoLength, NULL, info);
+
+        std::cout << "Erro de compilacao no Skybox Vertex Shader." << std::endl;
+        std::cout << "--> " << (void*)info << std::endl;
+    }   
+
+    // Compiling o Fragment Shader and checking for errors
+    glCompileShader(skyboxFragment);
+
+    isCompiled = 0;
+    glGetShaderiv(skyboxFragment, GL_COMPILE_STATUS, &isCompiled);
+    if (isCompiled == GL_FALSE) {
+        // Getting error log size
+        int infoLength = 512;
+        glGetShaderiv(skyboxFragment, GL_INFO_LOG_LENGTH, &infoLength);
+
+        // Getting error log and printing
+        char info[infoLength];
+        glGetShaderInfoLog(skyboxFragment, infoLength, NULL, info);
+
+        std::cout << "Erro de compilacao no Skybox Fragment Shader." << std::endl;
+        std::cout << "--> " << (void*)info << std::endl;
+    }
+
+    // Attaching shaders to program
+    glAttachShader(skyboxProgram, skyboxVertex);
+    glAttachShader(skyboxProgram, skyboxFragment);
+
+    // Linking program and setting as default
+    glLinkProgram(skyboxProgram);
+    glUseProgram(skyboxProgram);
 
     // Vertices that wil be sent to GPU
     std::vector<glm::vec3> vertices;
@@ -254,6 +315,57 @@ int main() {
     duck.renderer.loadObject(program, "./objects/duck/duck.obj", textures, vertices, normals, uvs);
     textures.clear();
 
+    std::vector<glm::vec3> vert {
+        // Right
+        { +1.0f, +1.0f, -1.0f },
+        { +1.0f, +1.0f, +1.0f },
+        { +1.0f, -1.0f, -1.0f },
+        { +1.0f, -1.0f, +1.0f },
+        // Left
+        { -1.0f, +1.0f, -1.0f },
+        { -1.0f, +1.0f, +1.0f },
+        { -1.0f, -1.0f, -1.0f },
+        { -1.0f, -1.0f, +1.0f },
+        // Top
+        { +1.0f, +1.0f, -1.0f },
+        { -1.0f, +1.0f, -1.0f },
+        { +1.0f, +1.0f, +1.0f },
+        { -1.0f, +1.0f, +1.0f },
+        // Bottom
+        { +1.0f, -1.0f, -1.0f },
+        { -1.0f, -1.0f, -1.0f },
+        { +1.0f, -1.0f, +1.0f },
+        { -1.0f, -1.0f, +1.0f },
+        // Front
+        { -1.0f, +1.0f, -1.0f },
+        { +1.0f, +1.0f, -1.0f },
+        { -1.0f, -1.0f, -1.0f },
+        { +1.0f, -1.0f, -1.0f },
+        // Back
+        { +1.0f, +1.0f, +1.0f },
+        { -1.0f, +1.0f, +1.0f },
+        { +1.0f, -1.0f, +1.0f },
+        { -1.0f, -1.0f, +1.0f },
+    };
+
+    int skyboxStartId = vertices.size();
+    int skyboxSize = vert.size();
+    vertices.insert(vertices.end(), vert.begin(), vert.end());
+
+    // Skybox
+    std::vector<std::string> faces {
+        "./skybox/right.bmp",
+        "./skybox/left.bmp",
+        "./skybox/top.bmp",
+        "./skybox/bottom.bmp",
+        "./skybox/front.bmp",
+        "./skybox/back.bmp"
+    };
+    unsigned int cubemapTexture = Renderer::loadCubemap(faces); 
+
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
     // Creating buffer with vertices
     GLuint buffer[2];
@@ -265,6 +377,10 @@ int main() {
     GLint locPosition = glGetAttribLocation(program, "position");
     glEnableVertexAttribArray(locPosition);
     glVertexAttribPointer(locPosition, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*) 0);
+
+    GLint locPos = glGetAttribLocation(skyboxProgram, "aPos");
+    glEnableVertexAttribArray(locPos);
+    glVertexAttribPointer(locPos, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*) 0);
 
     glBindBuffer(GL_ARRAY_BUFFER, buffer[1]);
     glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), uvs.data(), GL_STATIC_DRAW);
@@ -330,12 +446,26 @@ int main() {
 
         cat.transform.setRotation(Vector3(0, rotation, 0));
 
+        glUseProgram(program);
+        camera.updateViewProjection(program);
         for (auto it = GameObject::getAll()->begin(); it != GameObject::getAll()->end(); it++) {
             if ((*it)->renderer.enabled) {
                 (*it)->renderer.drawObject();
             }
         }
 
+        glUseProgram(skyboxProgram);
+        camera.updateViewProjection(skyboxProgram, true);
+
+        glDepthMask(GL_FALSE);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+
+        for (int i = skyboxStartId; i < skyboxStartId + skyboxSize; i += 4) {
+            glDrawArrays(GL_TRIANGLE_STRIP, i, 4);
+        }
+
+        glDepthMask(GL_TRUE);
+        
         glfwSwapBuffers(window);
     }
  

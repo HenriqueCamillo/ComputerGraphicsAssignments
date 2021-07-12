@@ -37,6 +37,7 @@ public:
     // Indicates if the object should be rendered or not
     bool enabled;
 
+    static unsigned int loadCubemap(std::vector<std::string> faces);
     void loadObject(GLuint program, std::string filePath, std::vector<TextureInfo> textures, std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals, std::vector<glm::vec2>& uvs);
     void addRenderingInstruction(RenderingInstructions renderingInstruction);
     void draw();

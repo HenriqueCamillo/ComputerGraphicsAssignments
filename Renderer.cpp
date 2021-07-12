@@ -35,10 +35,10 @@ void Renderer::drawObject() {
 
     int firstIndex = firstVertex;
 
-    for (unsigned int i = 0; i < this->textureGroups.size(); i++){ 
-        glBindTexture(GL_TEXTURE_2D, this->textureIDs[i]); 
-        glDrawArrays(GL_TRIANGLES, firstIndex, this->textureGroups[i]);
-        firstIndex += this->textureGroups[i]; 
+    for (unsigned int i = 0; i < textureGroups.size(); i++){ 
+        glBindTexture(GL_TEXTURE_2D, textureIDs[i]); 
+        glDrawArrays(GL_TRIANGLES, firstIndex, textureGroups[i]);
+        firstIndex += textureGroups[i]; 
     }
 }
 
@@ -48,6 +48,35 @@ void Renderer::draw(int locColor) {
         glDrawArrays(instruction.mode, instruction.start, instruction.size);
     }
 }
+
+unsigned int Renderer::loadCubemap(std::vector<std::string> faces) {
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+    SDL_Surface *image;
+    int width, height, nrChannels;
+    for (unsigned int i = 0; i < faces.size(); i++) {
+        image = IMG_Load(faces[i].c_str());
+        if (image != NULL) {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
+                         0, GL_RGB, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->pixels
+            );
+            SDL_FreeSurface(image);
+        } else {
+            std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
+            SDL_FreeSurface(image);
+        }
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    return textureID;
+} 
+
 
 bool loadObjectFromFile(const char* path, std::vector<glm::vec3>& vertices, std::vector<glm::vec2>& uvs, std::vector<glm::vec3>& normals, std::vector<int>& textureGroups){
     std::vector<unsigned int > vertexIndices, uvIndices, normalIndices;
@@ -144,7 +173,7 @@ void Renderer::loadObject(GLuint program, std::string filePath, std::vector<Text
     textureIDs = std::vector<GLuint>(textures.size());
     
     //Se houve erro em abrir o .obj joga um excecao
-    if(!loadObjectFromFile(filePath.c_str(), vertices, uvs, normals, textureGroups)){
+    if (!loadObjectFromFile(filePath.c_str(), vertices, uvs, normals, textureGroups)){
         throw("Unable to get an object from the file");
     }
 
