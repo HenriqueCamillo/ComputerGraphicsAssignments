@@ -33,6 +33,10 @@ private:
 public:
     // This variable stores the index of the first vertex not used in any rendering instruction yet
     static int currentVertex;
+    float ka;
+    float kd;
+    float ks;
+    float ns;
 
     // Indicates if the object should be rendered or not
     bool enabled;
@@ -41,7 +45,7 @@ public:
     void loadObject(GLuint program, std::string filePath, std::vector<TextureInfo> textures, std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals, std::vector<glm::vec2>& uvs);
     void addRenderingInstruction(RenderingInstructions renderingInstruction);
     void draw();
-    void drawObject();
+    void drawObject(float globalLightIntensity);
     void draw(int locColor);
 
     Renderer();

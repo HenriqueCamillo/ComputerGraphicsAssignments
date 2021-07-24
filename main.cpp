@@ -43,6 +43,8 @@ float pitch = 0.0;
 float lastX = width / 2;
 float lastY = height / 2;
 
+float globalLightIntensity = 0.5f;
+
 // Parses file to string. Used to read shader files.
 char* fileToString(std::string fileName) {
     std::ifstream file(fileName);
@@ -61,8 +63,14 @@ void onKey(GLFWwindow* window, int key, int scanCode, int action, int mods) {
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         pressedSpace = true;
     }
-    if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_Z && action == GLFW_PRESS) {
         polygonMode = !polygonMode;
+    }
+    if (key == GLFW_KEY_P && action == GLFW_PRESS && globalLightIntensity < 1) {
+        globalLightIntensity += 0.1f;
+    }
+    if (key == GLFW_KEY_U && action == GLFW_PRESS && globalLightIntensity > 0) {
+        globalLightIntensity -= 0.1f;
     }
     if (key == GLFW_KEY_M && action == GLFW_PRESS && mainCamera->fov < 140) {
         mainCamera->fov += 10;
@@ -70,22 +78,22 @@ void onKey(GLFWwindow* window, int key, int scanCode, int action, int mods) {
     if (key == GLFW_KEY_N && action == GLFW_PRESS && mainCamera->fov > 20) {
         mainCamera->fov -= 10;
     }
-    if (key == GLFW_KEY_K && action == GLFW_PRESS && mainCamera->nearClipPlane < 5) {
+    if (key == GLFW_KEY_L && action == GLFW_PRESS && mainCamera->nearClipPlane < 5) {
         mainCamera->nearClipPlane += 1;
     }
-    if (key == GLFW_KEY_J && action == GLFW_PRESS && mainCamera->nearClipPlane > 1) {
+    if (key == GLFW_KEY_K && action == GLFW_PRESS && mainCamera->nearClipPlane > 1) {
         mainCamera->nearClipPlane -= 1;
     }
-    if (key == GLFW_KEY_I && action == GLFW_PRESS && mainCamera->farClipPlane < 1000) {
+    if (key == GLFW_KEY_Y && action == GLFW_PRESS && mainCamera->farClipPlane < 1000) {
         mainCamera->farClipPlane += 10;
     }
-    if (key == GLFW_KEY_U && action == GLFW_PRESS && mainCamera->farClipPlane > 60) {
+    if (key == GLFW_KEY_T && action == GLFW_PRESS && mainCamera->farClipPlane > 60) {
         mainCamera->farClipPlane -= 10;
     }
-    if (key == GLFW_KEY_H && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_G && action == GLFW_PRESS) {
         mainCamera->aspectRatio += 0.1f;
     }
-    if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_F && action == GLFW_PRESS) {
         mainCamera->aspectRatio -= 0.1f;
     }
 }
@@ -263,21 +271,19 @@ int main() {
     }
     cabin.renderer.loadObject(program, "./objects/cabin/cabin.obj", textures, vertices, normals, uvs);
     textures.clear();
+    cabin.renderer.ks = 0.2f;
 
     GameObject ciruclarGrass;
     textures.push_back({"./objects/circularGrass/circularGrass.jpg", GL_RGB});
     ciruclarGrass.renderer.loadObject(program, "./objects/circularGrass/circularGrass.obj", textures, vertices, normals, uvs);
     textures.clear();
+    ciruclarGrass.renderer.ks = 0.2f;
 
     GameObject rectangularGrass;
     textures.push_back({"./objects/rectangularGrass/rectangularGrass.jpg", GL_RGB});
     rectangularGrass.renderer.loadObject(program, "./objects/rectangularGrass/rectangularGrass.obj", textures, vertices, normals, uvs);
     textures.clear();
-
-    GameObject cat;
-    textures.push_back({"./objects/cat/cat.jpg", GL_RGB});
-    cat.renderer.loadObject(program, "./objects/cat/cat.obj", textures, vertices, normals, uvs);
-    textures.clear();
+    rectangularGrass.renderer.ks = 0.2f;
 
     GameObject bike;
     for (int i = 0; i < 29; i++) {
@@ -314,6 +320,23 @@ int main() {
     }
     duck.renderer.loadObject(program, "./objects/duck/duck.obj", textures, vertices, normals, uvs);
     textures.clear();
+
+    GameObject cat;
+    textures.push_back({"./objects/cat/cat.jpg", GL_RGB});
+    cat.renderer.loadObject(program, "./objects/cat/cat.obj", textures, vertices, normals, uvs);
+    textures.clear();
+
+    GameObject catLight;
+    textures.push_back({"./objects/light/light.png", GL_RGB});
+    catLight.renderer.loadObject(program, "./objects/light/light.obj", textures, vertices, normals, uvs);
+    textures.clear();
+    catLight.renderer.enabled = false;
+
+    GameObject sun;
+    textures.push_back({"./objects/sun/sun.jpg", GL_RGB});
+    sun.renderer.loadObject(program, "./objects/sun/sun.obj", textures, vertices, normals, uvs);
+    textures.clear();
+    sun.transform.setPosition(Vector3(-140, 100, -140));
 
     std::vector<glm::vec3> vert {
         // Right
@@ -368,8 +391,8 @@ int main() {
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
     // Creating buffer with vertices
-    GLuint buffer[2];
-    glGenBuffers(1, buffer);
+    GLuint buffer[3];
+    glGenBuffers(3, buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer[0]);
 
     // Sending buffer
@@ -378,18 +401,25 @@ int main() {
     glEnableVertexAttribArray(locPosition);
     glVertexAttribPointer(locPosition, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*) 0);
 
+    // Skybox
     GLint locPos = glGetAttribLocation(skyboxProgram, "aPos");
     glEnableVertexAttribArray(locPos);
     glVertexAttribPointer(locPos, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*) 0);
 
+    // Textures
     glBindBuffer(GL_ARRAY_BUFFER, buffer[1]);
     glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), uvs.data(), GL_STATIC_DRAW);
     GLint locTextureCoord = glGetAttribLocation(program, "texture_coord");
     glEnableVertexAttribArray(locTextureCoord);
     glVertexAttribPointer(locTextureCoord, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*) 0);
- 
-    GLint locColor = glGetUniformLocation(program, "color");
 
+    // Normals
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[2]);
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), normals.data(), GL_STATIC_DRAW);
+    GLint locNormalsCoord = glGetAttribLocation(program, "normals");
+    glEnableVertexAttribArray(locNormalsCoord);
+    glVertexAttribPointer(locNormalsCoord, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*) 0);
+ 
     // Displaying window
     glfwShowWindow(window);
 
@@ -405,11 +435,12 @@ int main() {
     Vector3 cameraPosition, movement;
 
     float rotation = 0, rotationSpeed = 10;
-    
+    float catMovementRadius = 58, catMovementHeight = 4.5f;
     Color color;
 
     //Loop that will run while the screen is being displayed
     while (!glfwWindowShouldClose(window)) {
+        glUseProgram(program);
         glfwPollEvents();
 
         if (polygonMode) {
@@ -426,9 +457,26 @@ int main() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame; 
 
+        // Cat movement
+        rotation = (rotation + rotationSpeed * deltaTime);
+        if (rotation > 360) {
+            rotation -= 360;
+        }
+
+        cat.transform.setRotation(Vector3(0, rotation, 0));
+
+        // Cat light movement
+        movement = Vector3(Input::getAxis(window, "HorizontalArrows"), 0.0f, -Input::getAxis(window, "VerticalArrows"));
+        if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
+            movement.y -= 1.0;
+        if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
+            movement.y += 1.0;
+
+        catLight.transform.setPosition(Vector3(-catMovementRadius * cos(rotation * (M_PI / 180)), catMovementHeight, catMovementRadius * sin(rotation * (M_PI / 180))));
+
+        // Camera movement
         cameraPosition = camera.getPosition();
 
-        // Translation input
         movement = Vector3(Input::getAxis(window, "HorizontalWASD"), 0.0f, -Input::getAxis(window, "VerticalWASD"));
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
             movement.y -= camera.speed;
@@ -438,24 +486,30 @@ int main() {
         updateCursorPosition(window, &camera);
         camera.move(movement, deltaTime);
 
-        // Animation
-        rotation = (rotation - rotationSpeed * deltaTime);
-        if (rotation < -360) {
-            rotation += 360;
-        }
+        Vector3 pos = catLight.transform.getPosition();
+        GLint  loc_light_pos = glGetUniformLocation(program, "catLightPos");
+        glUniform3f(loc_light_pos, pos.x, pos.y, pos.z);
 
-        cat.transform.setRotation(Vector3(0, rotation, 0));
+        pos = sun.transform.getPosition();
+        GLint sun_pos = glGetUniformLocation(program, "sunPos");
+        glUniform3f(sun_pos, pos.x, pos.y, pos.z);
 
-        glUseProgram(program);
         camera.updateViewProjection(program);
+        pos = camera.getPosition();
+        GLint loc_view_pos = glGetUniformLocation(program, "viewPos");
+        glUniform3f(loc_view_pos, pos.x, pos.y, pos.y);
+
         for (auto it = GameObject::getAll()->begin(); it != GameObject::getAll()->end(); it++) {
             if ((*it)->renderer.enabled) {
-                (*it)->renderer.drawObject();
+                (*it)->renderer.drawObject(globalLightIntensity);
             }
         }
 
         glUseProgram(skyboxProgram);
         camera.updateViewProjection(skyboxProgram, true);
+
+        GLint loc_ka = glGetUniformLocation(skyboxProgram, "ka");
+        glUniform1f(loc_ka, globalLightIntensity);
 
         glDepthMask(GL_FALSE);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);

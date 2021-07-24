@@ -6,10 +6,21 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-Renderer::Renderer() : enabled(true) {}
+Renderer::Renderer() : enabled(true) {
+    ka = 1;
+    kd = 1;
+    ks = 1;
+    ns = 64;
+}
+
 Renderer::Renderer(Transform* transform) : enabled(true) {
     this->transform = transform;
+    ka = 1;
+    kd = 1;
+    ks = 1;
+    ns = 64;
 }
+
 Renderer::~Renderer() {}
 
 int Renderer::currentVertex = 0;
@@ -29,12 +40,23 @@ void Renderer::draw() {
     }
 }
 
-void Renderer::drawObject() {
+void Renderer::drawObject(float globalLightIntensity) {
     int locModel = glGetUniformLocation(program, "model");
     glUniformMatrix4fv(locModel, 1, GL_FALSE, transform->getTransformationMatrix().data());
 
-    int firstIndex = firstVertex;
+    GLint loc_ka = glGetUniformLocation(program, "ka");
+    glUniform1f(loc_ka, ka * globalLightIntensity);
+    
+    GLint loc_kd = glGetUniformLocation(program, "kd");
+    glUniform1f(loc_kd, kd);
+    
+    GLint loc_ks = glGetUniformLocation(program, "ks");
+    glUniform1f(loc_ks, ks); 
+    
+    GLint loc_ns = glGetUniformLocation(program, "ns"); 
+    glUniform1f(loc_ns, ns);
 
+    int firstIndex = firstVertex;
     for (unsigned int i = 0; i < textureGroups.size(); i++){ 
         glBindTexture(GL_TEXTURE_2D, textureIDs[i]); 
         glDrawArrays(GL_TRIANGLES, firstIndex, textureGroups[i]);
@@ -161,6 +183,12 @@ bool loadObjectFromFile(const char* path, std::vector<glm::vec3>& vertices, std:
         unsigned int uvIndex = uvIndices[i];
         glm::vec2 uv = tempUvs[uvIndex - 1];
         uvs.push_back(uv);
+    }
+
+    for (unsigned int i = 0; i < normalIndices.size(); i++) {
+        unsigned int normalIndex = normalIndices[i];
+        glm::vec3 normal = tempNormals[normalIndex - 1];
+        normals.push_back(normal);
     }
 
     fclose(file);

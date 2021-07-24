@@ -18,12 +18,14 @@
 * E - cima
 
 ## Mudanças nas configurações de visão
-* P - alterna entre modos de visualização
+* Z - alterna entre modos de visualização
 * M - aumenta campo de visão
 * N - diminui campo de visão
-* K - aumenta near clipping plane
-* J - diminui near clipping plane
-* I - aumenta far clipping plane
-* U - diminui far clipping plane
-* H - aumenta fração de proporção da tela
-* G - diminui fração de proporção da tela
+* L - aumenta near clipping plane
+* K - diminui near clipping plane
+* Y - aumenta far clipping plane
+* T - diminui far clipping plane
+* G - aumenta fração de proporção da tela
+* F - diminui fração de proporção da tela
+* P - aumenta intensidade da iluminação ambiente
+* U - diminui intensidade da iluminação ambiente

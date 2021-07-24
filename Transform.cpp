@@ -59,10 +59,10 @@ void Transform::updateTranslationMatrix() {
     }
 
     translationMatrix = {
-        1.0f, 0.0f, 0.0f, position.x,
-        0.0f, 1.0f, 0.0f, position.y,
-        0.0f, 0.0f, 1.0f, position.z,
-        0.0f, 0.0f, 0.0f, 1.0f
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        position.x, position.y, position.z, 1.0f
     };
 
     translationDirty = false;
@@ -79,8 +79,8 @@ void Transform::updateRotationMatrices() {
 
     rotationXMatrix = {
         1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, cosTheta, -senTheta, 0.0f,
-        0.0f, senTheta,  cosTheta, 0.0f,
+        0.0f, cosTheta,  senTheta, 0.0f,
+        0.0f, -senTheta, cosTheta, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f
     };
 
@@ -89,9 +89,9 @@ void Transform::updateRotationMatrices() {
     senTheta = sin(rotation.y * (M_PI / 180));
 
     rotationYMatrix = {
-        cosTheta, 0.0f, senTheta, 0.0f,
+        cosTheta, 0.0f, -senTheta, 0.0f,
         0.0f, 1.0f, 0.0f, 0.0f,
-        -senTheta, 0.0f, cosTheta, 0.0f,
+        senTheta, 0.0f, cosTheta, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f
     };
 
@@ -100,8 +100,8 @@ void Transform::updateRotationMatrices() {
     senTheta = sin(rotation.z * (M_PI / 180));
 
     rotationZMatrix = {
-        cosTheta, -senTheta, 0.0f, 0.0f,
-        senTheta,  cosTheta, 0.0f, 0.0f,
+        cosTheta,  senTheta, 0.0f, 0.0f,
+        -senTheta, cosTheta, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f
     };
@@ -144,7 +144,6 @@ void Transform::updateTransformationMatrix() {
 
 std::vector<float> Transform::matrixMultiplication(std::vector<float>& m1, int r1, int c1, std::vector<float>& m2, int r2, int c2) {
     if (c1 != r2) {
-        std::cout << "Invalid matrix multiplication." << std::endl;
         return {};
     }
 
